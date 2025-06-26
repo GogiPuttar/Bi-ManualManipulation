@@ -16,10 +16,6 @@ setup(
             'urdf/allegro_hand.urdf.xacro',
             'urdf/franka_arm.urdf.xacro'
         ]),
-        ('share/' + package_name + '/assets', [
-            'assets/allegro_hand.usd',
-            'assets/franka.usd'
-        ]),
         ('share/' + package_name + '/world', [
             'world/table.usd',       
             'world/allegro_hand.usd',
