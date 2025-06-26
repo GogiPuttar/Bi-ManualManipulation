@@ -1,3 +1,9 @@
+from omni.isaac.kit import SimulationApp
+simulation_app = SimulationApp({"headless": False})
+
+# Your logic...
+print("Script running inside Isaac Sim...")
+
 from pxr import Gf, UsdGeom
 from isaacsim.core.utils.prims import create_prim, get_current_stage, get_prim_at_path
 
@@ -34,3 +40,6 @@ def run():
     print("✅ Two arms and hands loaded")
 
 run()
+
+simulation_app.update()
+simulation_app.close()
