@@ -10,7 +10,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name + '/launch', ['launch/sim_bimanual.launch.py']),
-        # ('share/' + package_name + '/scripts', ['scripts/spawn_bimanual.py']),
+        ('share/' + package_name + '/scripts', ['scripts/spawn_bimanual.py']),
         ('share/' + package_name + '/config', ['config/robot_description.xacro']),
         ('share/' + package_name + '/urdf', [
             'urdf/allegro_hand.urdf.xacro',
@@ -28,8 +28,6 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            # 'spawn_bimanual = scripts.spawn_bimanual:main',
-            'spawn_bimanual = bimanual_isaac.spawn_bimanual:main',
         ],
     },
 )
