@@ -39,7 +39,7 @@ WorldMockup::WorldMockup(const rclcpp::NodeOptions & options)
 
   // Timer for regular state publishing
   timer_ = create_wall_timer(
-    std::chrono::milliseconds(200),
+    std::chrono::milliseconds(static_cast<int>(timestep_ * 1000.0)),
     std::bind(&WorldMockup::publish_state, this)
   );
 
@@ -96,7 +96,48 @@ void WorldMockup::load_world_params(const std::string & path)
 
 void WorldMockup::publish_state()
 {
-  // TODO: Simulate object physics
+  // 1. Apply gravity if not grasped
+  if (grasp_state_ == "none") {
+    object_.velocity_z -= gravity_ * timestep_;  // gravity * timestep (0.2 sec)
+    object_.tf.transform.translation.z += object_.velocity_z * timestep_;
+
+    // 2. Table collision check
+    double min_z = table_height_ + object_.radius;
+    if (object_.tf.transform.translation.z < min_z) {
+      object_.tf.transform.translation.z = min_z;
+      object_.velocity_z = 0.0;
+    }
+  }
+
+  // 3. Broadcast object TF
+  object_.tf.header.stamp = get_clock()->now();
+  object_.tf.header.frame_id = "world";
+  object_.tf.child_frame_id = "object";
+  tf_broadcaster_->sendTransform(object_.tf);
+
+  // 4. Publish sphere marker
+  visualization_msgs::msg::Marker marker;
+  marker.header.frame_id = "world";
+  marker.header.stamp = get_clock()->now();
+  marker.ns = "object";
+  marker.id = 0;
+  marker.type = visualization_msgs::msg::Marker::SPHERE;
+  marker.action = visualization_msgs::msg::Marker::ADD;
+  marker.pose.position.x = object_.tf.transform.translation.x;
+  marker.pose.position.y = object_.tf.transform.translation.y;
+  marker.pose.position.z = object_.tf.transform.translation.z;
+  marker.pose.orientation.w = 1.0;  // no rotation
+  marker.scale.x = object_.radius * 2.0;
+  marker.scale.y = object_.radius * 2.0;
+  marker.scale.z = object_.radius * 2.0;
+  marker.color.r = object_.color[0];
+  marker.color.g = object_.color[1];
+  marker.color.b = object_.color[2];
+  marker.color.a = 1.0;
+  marker.lifetime = rclcpp::Duration::from_seconds(0);
+
+  object_marker_pub_->publish(marker);
+
   // TODO: Check fingertip distances and update tactile signals
   // TODO: Generate and publish synthetic images (color + depth)
 }

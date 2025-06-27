@@ -26,6 +26,7 @@ struct SimObject
   std::array<float, 3> color; ///< RGB color values in [0.0, 1.0]
   float radius;               ///< Radius of the object in meters
   geometry_msgs::msg::TransformStamped tf; ///< Pose of object in world frame
+  double velocity_z = 0.0;
 };
 
 /**
@@ -65,10 +66,11 @@ private:
   void publish_state();
 
   // Internal state variables
+  double timestep_ = 0.2;      // seconds
   SimObject object_;
   double gravity_;
   double table_height_;
-  std::string grasp_state_;  // "none", "left", "right"
+  std::string grasp_state_;   // "none", "left", "right"
 
   // Camera/tactile publishers
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr left_rgb_pub_, right_rgb_pub_;
