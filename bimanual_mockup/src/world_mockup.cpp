@@ -43,6 +43,21 @@ WorldMockup::WorldMockup(const rclcpp::NodeOptions & options)
     std::bind(&WorldMockup::publish_state, this)
   );
 
+  // Initial pose
+  initial_pose_.position.x = 1.0;
+  initial_pose_.position.y = 1.0;
+  initial_pose_.position.z = 0.5;
+  initial_pose_.orientation.w = 1.0;
+
+  object_.tf.transform.translation.x = initial_pose_.position.x;
+  object_.tf.transform.translation.y = initial_pose_.position.y;
+  object_.tf.transform.translation.z = initial_pose_.position.z;
+
+  object_.tf.transform.rotation.x = initial_pose_.orientation.x;
+  object_.tf.transform.rotation.y = initial_pose_.orientation.y;
+  object_.tf.transform.rotation.z = initial_pose_.orientation.z;
+  object_.tf.transform.rotation.w = initial_pose_.orientation.w;
+
   RCLCPP_INFO(get_logger(), "WorldMockup node started.");
 }
 

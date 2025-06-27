@@ -70,7 +70,8 @@ private:
   SimObject object_;
   double gravity_;
   double table_height_;
-  std::string grasp_state_;   // "none", "left", "right"
+  std::string grasp_state_{"none"};   // "none", "left", "right"
+  geometry_msgs::msg::Pose initial_pose_;
 
   // Camera/tactile publishers
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr left_rgb_pub_, right_rgb_pub_;
