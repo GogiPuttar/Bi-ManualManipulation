@@ -44,8 +44,8 @@ WorldMockup::WorldMockup(const rclcpp::NodeOptions & options)
   );
 
   // Initial pose
-  initial_pose_.position.x = 1.0;
-  initial_pose_.position.y = 1.0;
+  initial_pose_.position.x = 0.4;
+  initial_pose_.position.y = 0.8;
   initial_pose_.position.z = 0.5;
   initial_pose_.orientation.w = 1.0;
 
