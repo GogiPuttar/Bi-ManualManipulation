@@ -1,21 +1,74 @@
 #pragma once
 
-#include "rclcpp/rclcpp.hpp"
-#include "sensor_msgs/msg/image.hpp"
-#include "geometry_msgs/msg/TransformStamped.hpp"
+#ifndef BIMANUAL_MOCKUP__WORLD_MOCKUP_HPP_
+#define BIMANUAL_MOCKUP__WORLD_MOCKUP_HPP_
+
+#include <array>
+#include <string>
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/image.hpp>
+#include <geometry_msgs/msg/transform_stamped.hpp>
+#include <visualization_msgs/msg/marker.hpp>
+#include <yaml-cpp/yaml.h>
 #include "bimanual_msgs/msg/tactile.hpp"
-#include "bimanual_msgs/msg/grasp_state.hpp"
-#include "visualization_msgs/msg/marker.hpp"
 #include "tf2_ros/transform_broadcaster.h"
 #include "tf2_ros/transform_listener.h"
 #include "tf2_ros/buffer.h"
 
-class WorldMockup : public rclcpp::Node {
+namespace bimanual_mockup
+{
+
+/**
+ * @brief Struct representing a simple simulated object
+ */
+struct SimObject
+{
+  std::array<float, 3> color; ///< RGB color values in [0.0, 1.0]
+  float radius;               ///< Radius of the object in meters
+  geometry_msgs::msg::TransformStamped tf; ///< Pose of object in world frame
+};
+
+/**
+ * @brief Node that simulates the world including object pose, tactile sensing, and camera output
+ */
+class WorldMockup : public rclcpp::Node
+{
 public:
-  WorldMockup();
+  /**
+   * @brief Constructor
+   * @param options Node options
+   */
+  explicit WorldMockup(const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
 private:
-  void timer_callback();
+  /**
+   * @brief Load camera parameters from YAML file
+   * @param path Path to YAML file
+   */
+  void load_camera_params(const std::string & path);
+
+  /**
+   * @brief Load object parameters from YAML file
+   * @param path Path to YAML file
+   */
+  void load_object_params(const std::string & path);
+
+  /**
+   * @brief Load world parameters (e.g. gravity) from YAML file
+   * @param path Path to YAML file
+   */
+  void load_world_params(const std::string & path);
+
+  /**
+   * @brief Publishes all simulated outputs (camera, tactile, etc.)
+   */
+  void publish_state();
+
+  // Internal state variables
+  SimObject object_;
+  double gravity_;
+  double table_height_;
+  std::string grasp_state_;  // "none", "left", "right"
 
   // Camera/tactile publishers
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr left_rgb_pub_, right_rgb_pub_;
@@ -28,11 +81,9 @@ private:
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 
-  // Timer
   rclcpp::TimerBase::SharedPtr timer_;
-
-  // Internal object state
-  std::string grasp_state_;  // "none", "left", "right"
-  geometry_msgs::msg::TransformStamped object_tf_;
-  double object_radius_;
 };
+
+}  // namespace bimanual_mockup
+
+#endif  // BIMANUAL_MOCKUP__WORLD_MOCKUP_HPP_

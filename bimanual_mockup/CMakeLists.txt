@@ -16,6 +16,48 @@ find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(bimanual_msgs REQUIRED)
+find_package(yaml-cpp REQUIRED)
+
+# Include directories
+include_directories(
+  include
+)
+
+# Executable
+add_executable(world_mockup
+  src/world_mockup.cpp
+)
+
+# Link against dependencies
+ament_target_dependencies(world_mockup
+  rclcpp
+  sensor_msgs
+  geometry_msgs
+  visualization_msgs
+  tf2_ros
+  bimanual_msgs
+)
+
+target_link_libraries(world_mockup
+  yaml-cpp
+)
+
+# Install target and launch files
+install(TARGETS
+  world_mockup
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY
+  include/
+  DESTINATION include/
+)
+
+install(DIRECTORY
+  launch
+  config
+  DESTINATION share/${PROJECT_NAME}/
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
