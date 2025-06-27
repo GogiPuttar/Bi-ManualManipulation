@@ -7,27 +7,15 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(OpenCV REQUIRED)
-find_package(cv_bridge REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(tf2_sensor_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
-
-include_directories(include)
-
-add_executable(bimanual_mockup src/bimanual_mockup.cpp)
-
-ament_target_dependencies(bimanual_mockup
-  rclcpp
-  sensor_msgs
-  std_msgs
-  OpenCV
-  cv_bridge
-)
-
-target_link_libraries(bimanual_mockup
-  ${OpenCV_LIBS}
-)
+find_package(visualization_msgs REQUIRED)
+find_package(bimanual_msgs REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -40,8 +28,5 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
-
-install(TARGETS bimanual_mockup
-  DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
