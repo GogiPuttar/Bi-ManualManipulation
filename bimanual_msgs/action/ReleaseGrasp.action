@@ -1,0 +1,11 @@
+# Goal
+float32[] target_opening     # Optional: desired finger open values (0 to 1)
+
+---
+# Result
+bool success
+float32[] final_closure      # Final finger states (should be near 0.0)
+
+---
+# Feedback
+float32[] current_closure

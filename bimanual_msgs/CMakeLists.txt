@@ -11,6 +11,20 @@ find_package(ament_cmake REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
+find_package(geometry_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(action_msgs REQUIRED)
+
+# Messages and actions
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/GraspState.msg"
+  "msg/Tactile.msg"
+  "action/MoveArmToPose.action"
+  "action/GraspUntilContact.action"
+  "action/ReleaseGrasp.action"
+  DEPENDENCIES std_msgs geometry_msgs action_msgs
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights

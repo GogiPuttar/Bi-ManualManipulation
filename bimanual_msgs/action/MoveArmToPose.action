@@ -1,0 +1,11 @@
+# Goal
+geometry_msgs/PoseStamped target_pose
+float32 duration     # Optional duration in seconds (can be ignored)
+
+---
+# Result
+bool success
+
+---
+# Feedback
+float32 progress     # 0.0 to 1.0 as motion completes
