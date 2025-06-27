@@ -1,25 +1,35 @@
 left_camera:
-  pose:
-    position: [0.3, 0.2, 1.0]
-    orientation: [0.0, 0.0, 0.0, 1.0]
-  intrinsics:
+  color_intrinsics:
     fx: 525.0
     fy: 525.0
     cx: 319.5
     cy: 239.5
-  resolution:
+  color_resolution:
+    width: 640
+    height: 480
+  depth_intrinsics:
+    fx: 525.0
+    fy: 525.0
+    cx: 319.5
+    cy: 239.5
+  depth_resolution:
     width: 640
     height: 480
 
 right_camera:
-  pose:
-    position: [0.3, -0.2, 1.0]
-    orientation: [0.0, 0.0, 0.0, 1.0]
-  intrinsics:
+  color_intrinsics:
     fx: 525.0
     fy: 525.0
     cx: 319.5
     cy: 239.5
-  resolution:
+  color_resolution:
+    width: 640
+    height: 480
+  depth_intrinsics:
+    fx: 525.0
+    fy: 525.0
+    cx: 319.5
+    cy: 239.5
+  depth_resolution:
     width: 640
     height: 480

@@ -17,6 +17,9 @@ find_package(std_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(bimanual_msgs REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(OpenCV REQUIRED)
+find_package(cv_bridge REQUIRED)
+find_package(image_transport REQUIRED)
 
 # Include directories
 include_directories(
@@ -35,7 +38,11 @@ ament_target_dependencies(world_mockup
   geometry_msgs
   visualization_msgs
   tf2_ros
+  tf2_geometry_msgs
   bimanual_msgs
+  OpenCV
+  cv_bridge
+  image_transport
 )
 
 target_link_libraries(world_mockup

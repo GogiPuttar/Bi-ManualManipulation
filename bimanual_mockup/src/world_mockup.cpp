@@ -22,8 +22,8 @@ WorldMockup::WorldMockup(const rclcpp::NodeOptions & options)
   load_world_params(world_path);
 
   // Create publishers
-  left_rgb_pub_ = create_publisher<sensor_msgs::msg::Image>("/left/camera/color/image_raw", 10);
-  right_rgb_pub_ = create_publisher<sensor_msgs::msg::Image>("/right/camera/color/image_raw", 10);
+  left_color_pub_ = create_publisher<sensor_msgs::msg::Image>("/left/camera/color/image_raw", 10);
+  right_color_pub_ = create_publisher<sensor_msgs::msg::Image>("/right/camera/color/image_raw", 10);
   left_depth_pub_ = create_publisher<sensor_msgs::msg::Image>("/left/camera/depth/image_raw", 10);
   right_depth_pub_ = create_publisher<sensor_msgs::msg::Image>("/right/camera/depth/image_raw", 10);
 
@@ -64,25 +64,31 @@ WorldMockup::WorldMockup(const rclcpp::NodeOptions & options)
 void WorldMockup::load_camera_params(const std::string & path)
 {
   RCLCPP_INFO(get_logger(), "Loading camera parameters from: %s", path.c_str());
-
   YAML::Node config = YAML::LoadFile(path);
 
-  for (const auto& side : {"left_camera", "right_camera"}) {
-    if (!config[side]) continue;
+  for (const auto& cam_key : {"left_camera", "right_camera"}) {
+    const auto& node = config[cam_key];
+    if (!node) continue;
 
-    auto pose = config[side]["pose"];
-    geometry_msgs::msg::TransformStamped tf;
-    tf.header.frame_id = "world";
-    tf.child_frame_id = std::string(side) + "_frame";
-    tf.transform.translation.x = pose["position"][0].as<double>();
-    tf.transform.translation.y = pose["position"][1].as<double>();
-    tf.transform.translation.z = pose["position"][2].as<double>();
-    tf.transform.rotation.x = pose["orientation"][0].as<double>();
-    tf.transform.rotation.y = pose["orientation"][1].as<double>();
-    tf.transform.rotation.z = pose["orientation"][2].as<double>();
-    tf.transform.rotation.w = pose["orientation"][3].as<double>();
+    Camera* cam = (std::string(cam_key) == "left_camera") ? &left_cam_ : &right_cam_;
 
-    // Store or broadcast this TF as needed
+    auto c_intr = node["color_intrinsics"];
+    cam->color_intrinsics = {c_intr["fx"].as<double>(), c_intr["fy"].as<double>(),
+                             c_intr["cx"].as<double>(), c_intr["cy"].as<double>()};
+
+    cam->color_resolution = {
+      node["color_resolution"]["width"].as<int>(),
+      node["color_resolution"]["height"].as<int>()
+    };
+
+    auto d_intr = node["depth_intrinsics"];
+    cam->depth_intrinsics = {d_intr["fx"].as<double>(), d_intr["fy"].as<double>(),
+                             d_intr["cx"].as<double>(), d_intr["cy"].as<double>()};
+
+    cam->depth_resolution = {
+      node["depth_resolution"]["width"].as<int>(),
+      node["depth_resolution"]["height"].as<int>()
+    };
   }
 }
 
@@ -154,7 +160,77 @@ void WorldMockup::publish_state()
   object_marker_pub_->publish(marker);
 
   // TODO: Check fingertip distances and update tactile signals
-  // TODO: Generate and publish synthetic images (color + depth)
+
+  // Get transform from camera to world
+  left_cam_.tf = tf_buffer_->lookupTransform("left/camera", "object", tf2::TimePointZero);
+  right_cam_.tf = tf_buffer_->lookupTransform("right/camera", "object", tf2::TimePointZero);
+
+  auto left_color = render_sphere_color(object_, left_cam_.tf, left_cam_.color_intrinsics, left_cam_.color_resolution);
+  auto left_depth = render_sphere_depth(object_, left_cam_.tf, left_cam_.depth_intrinsics, left_cam_.depth_resolution);
+  auto right_color = render_sphere_color(object_, right_cam_.tf, right_cam_.color_intrinsics, right_cam_.color_resolution);
+  auto right_depth = render_sphere_depth(object_, right_cam_.tf, right_cam_.depth_intrinsics, right_cam_.depth_resolution);
+
+  // Convert to ROS msgs
+  auto left_color_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", left_color).toImageMsg();
+  auto left_depth_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "32FC1", left_depth).toImageMsg();
+  auto right_color_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", right_color).toImageMsg();
+  auto right_depth_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "32FC1", right_depth).toImageMsg();
+
+  left_color_pub_->publish(*left_color_msg);
+  left_depth_pub_->publish(*left_depth_msg);
+  right_color_pub_->publish(*right_color_msg);
+  right_depth_pub_->publish(*right_depth_msg);
+}
+
+cv::Mat WorldMockup::render_sphere_color(const SimObject & obj,
+                                       const geometry_msgs::msg::TransformStamped & cam_tf,
+                                       const std::array<double, 4> & intr,
+                                       const std::array<int, 2> & res)
+{
+  cv::Mat image(res[1], res[0], CV_8UC3, cv::Scalar(0, 0, 0));
+
+  // Transform object center to camera frame
+  tf2::Transform tf;
+  tf2::fromMsg(cam_tf.transform, tf);
+  tf2::Vector3 obj_pos(obj.tf.transform.translation.x,
+                       obj.tf.transform.translation.y,
+                       obj.tf.transform.translation.z);
+  tf2::Vector3 cam_coords = tf.inverse() * obj_pos;
+
+  if (cam_coords.z() <= 0.1) return image;
+
+  double u = intr[0] * (cam_coords.x() / cam_coords.z()) + intr[2];
+  double v = intr[1] * (cam_coords.y() / cam_coords.z()) + intr[3];
+
+  int radius_px = static_cast<int>(intr[0] * obj.radius / cam_coords.z());
+  cv::circle(image, cv::Point(u, v), radius_px,
+             cv::Scalar(255 * obj.color[2], 255 * obj.color[1], 255 * obj.color[0]), -1);
+  return image;
+}
+
+cv::Mat WorldMockup::render_sphere_depth(const SimObject & obj,
+                                         const geometry_msgs::msg::TransformStamped & cam_tf,
+                                         const std::array<double, 4> & intr,
+                                         const std::array<int, 2> & res)
+{
+  cv::Mat depth(res[1], res[0], CV_32FC1, cv::Scalar(0.0));
+
+  tf2::Transform tf;
+  tf2::fromMsg(cam_tf.transform, tf);
+  tf2::Vector3 obj_pos(obj.tf.transform.translation.x,
+                       obj.tf.transform.translation.y,
+                       obj.tf.transform.translation.z);
+  tf2::Vector3 cam_coords = tf.inverse() * obj_pos;
+
+  if (cam_coords.z() <= 0.1) return depth;
+
+  double u = intr[0] * (cam_coords.x() / cam_coords.z()) + intr[2];
+  double v = intr[1] * (cam_coords.y() / cam_coords.z()) + intr[3];
+
+  int radius_px = static_cast<int>(intr[0] * obj.radius / cam_coords.z());
+  cv::circle(depth, cv::Point(u, v), radius_px, cam_coords.z(), -1);
+
+  return depth;
 }
 
 /// @brief Main entry point for the world_mockup node

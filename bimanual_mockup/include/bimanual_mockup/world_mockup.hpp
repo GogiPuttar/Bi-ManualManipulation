@@ -14,6 +14,9 @@
 #include "tf2_ros/transform_broadcaster.h"
 #include "tf2_ros/transform_listener.h"
 #include "tf2_ros/buffer.h"
+#include <cv_bridge/cv_bridge.h>
+#include <opencv2/opencv.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 namespace bimanual_mockup
 {
@@ -27,6 +30,20 @@ struct SimObject
   float radius;               ///< Radius of the object in meters
   geometry_msgs::msg::TransformStamped tf; ///< Pose of object in world frame
   double velocity_z = 0.0;
+};
+
+/**
+ * @brief Struct representing a camera
+ */
+struct Camera
+{
+  std::array<double, 4> color_intrinsics; ///< [fx, fy, cx, cy] 
+  std::array<int, 2> color_resolution;    ///< [width, height]
+
+  std::array<double, 4> depth_intrinsics; ///< [fx, fy, cx, cy] 
+  std::array<int, 2> depth_resolution;    ///< [width, height]
+
+  geometry_msgs::msg::TransformStamped tf;  ///< Pose of camera in world frame
 };
 
 /**
@@ -68,13 +85,14 @@ private:
   // Internal state variables
   double timestep_ = 0.2;      // seconds
   SimObject object_;
+  Camera right_cam_, left_cam_;
   double gravity_;
   double table_height_;
   std::string grasp_state_{"none"};   // "none", "left", "right"
   geometry_msgs::msg::Pose initial_pose_;
 
   // Camera/tactile publishers
-  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr left_rgb_pub_, right_rgb_pub_;
+  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr left_color_pub_, right_color_pub_;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr left_depth_pub_, right_depth_pub_;
   rclcpp::Publisher<bimanual_msgs::msg::Tactile>::SharedPtr left_tactile_pub_, right_tactile_pub_;
   rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr object_marker_pub_;
@@ -85,6 +103,12 @@ private:
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 
   rclcpp::TimerBase::SharedPtr timer_;
+
+  cv::Mat render_sphere_color(const SimObject & object, const geometry_msgs::msg::TransformStamped & cam_tf,
+                          const std::array<double, 4> & intrinsics, const std::array<int, 2> & resolution);
+
+  cv::Mat render_sphere_depth(const SimObject & object, const geometry_msgs::msg::TransformStamped & cam_tf,
+                          const std::array<double, 4> & intrinsics, const std::array<int, 2> & resolution);
 };
 
 }  // namespace bimanual_mockup
