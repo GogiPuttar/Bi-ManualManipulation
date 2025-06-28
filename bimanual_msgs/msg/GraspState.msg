@@ -1,2 +1,2 @@
-string holder      # "none", "left", or "right"
-string frame_id    # TF frame of the object parent (e.g., "left/palm" or "world")
+string current_holder     # Current TF frame of the object parent ("world" | "left/palm" | "right/palm" | "bin")
+string expected_holder    # Next TF frame of the object parent ("world" | "left/palm" | "right/palm" | "bin")

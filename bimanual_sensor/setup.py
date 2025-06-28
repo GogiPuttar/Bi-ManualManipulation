@@ -18,7 +18,7 @@ setup(
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
         (os.path.join('share', package_name, 'config'), glob('config/*.rviz')),  # Optional
     ],
-    install_requires=['setuptools'],
+    install_requires=['setuptools', 'rclpy', 'bimanual_msgs'],
     zip_safe=True,
     maintainer='adityanair',
     maintainer_email='aditya.nair0123@gmail.com',

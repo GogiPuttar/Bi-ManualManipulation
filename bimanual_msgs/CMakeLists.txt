@@ -14,6 +14,7 @@ find_package(ament_cmake REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(action_msgs REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
 
 # Messages and actions
 rosidl_generate_interfaces(${PROJECT_NAME}
@@ -24,6 +25,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "action/ReleaseGrasp.action"
   DEPENDENCIES std_msgs geometry_msgs action_msgs
 )
+
+ament_export_dependencies(rosidl_default_runtime)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
