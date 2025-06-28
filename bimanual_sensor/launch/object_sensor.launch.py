@@ -8,19 +8,26 @@ import os
 from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
+    # Get the path to the config folder
+    pkg_share = get_package_share_directory('bimanual_sensor')
+    config_dir = os.path.join(pkg_share, 'config')
+
     use_rviz = LaunchConfiguration('use_rviz')
     camera_placeholder = LaunchConfiguration('camera_placeholder')
 
     return LaunchDescription([
         DeclareLaunchArgument('use_rviz', default_value='true'),
         DeclareLaunchArgument('camera_placeholder', default_value='true'),
+        DeclareLaunchArgument('cv_params_file', default_value='config/cv_params.yaml'),
 
         Node(
             package='bimanual_sensor',
             executable='object_sensor_node',
             name='object_sensor',
             output='screen',
-            parameters=[os.path.join(get_package_share_directory('bimanual_sensor'), 'config/cv_params.yaml')]
+            parameters=[{
+                'cv_params_file': os.path.join(config_dir, 'cv_params.yaml'),
+                }]
         ),
 
         Node(

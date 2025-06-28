@@ -1,0 +1,9 @@
+camera_frame: "right/camera"
+fx: 525.0
+fy: 525.0
+cx: 320.0
+cy: 240.0
+hue_min: 20
+hue_max: 45
+saturation_min: 100
+value_min: 100

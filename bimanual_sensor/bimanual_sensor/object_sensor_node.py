@@ -9,14 +9,24 @@ import tf_transformations
 import cv2
 from cv_bridge import CvBridge
 from bimanual_msgs.msg import GraspState
+from tf2_ros import Buffer, TransformListener
+import yaml
+import numpy as np
+import os
 
 class ObjectSensor(Node):
     def __init__(self):
         super().__init__('object_sensor')
 
-        self.declare_parameter('cv_params_file', '')
-
         self.timestep = 0.2 # seconds
+
+        self.declare_parameter('cv_params_file', '')
+        cv_path = self.get_parameter('cv_params_file').get_parameter_value().string_value
+
+        if not os.path.exists(cv_path):
+            self.get_logger().error(f"cv_params.yaml not found at: {cv_path}")
+            rclpy.shutdown()
+            return
 
         self.grasp_state = GraspState()
         self.grasp_state.current_holder = "world"
@@ -48,6 +58,27 @@ class ObjectSensor(Node):
         # Timer to process and broadcast
         self.timer = self.create_timer(self.timestep, self.process)
 
+        # Load intrinsics
+        with open(cv_path, 'r') as f:
+            cv_params = yaml.safe_load(f)
+
+        self.fx = cv_params['fx']
+        self.fy = cv_params['fy']
+        self.cx = cv_params['cx']
+        self.cy = cv_params['cy']
+        self.cam_frame = cv_params['camera_frame']
+        self.hue_min = cv_params['hue_min']
+        self.hue_max = cv_params['hue_max']
+        self.saturation_min = cv_params['saturation_min']
+        self.value_min = cv_params['value_min']
+
+        # TF Buffer + listener (needed to transform from camera → world)
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
+
+        # Store last known object pose
+        self.last_object_tf = None
+
     def grasp_cb(self, msg):
         self.grasp_state = msg
 
@@ -72,14 +103,70 @@ class ObjectSensor(Node):
         eh = self.grasp_state.expected_holder
 
         if ch == "world" and eh == "world":
-            # Object is unknown – run CV or publish dummy value
             tf_msg.header.frame_id = "world"
-            tf_msg.transform.translation.x = 0.0  # dummy
-            tf_msg.transform.translation.y = 0.0
-            tf_msg.transform.translation.z = 0.0
             tf_msg.transform.rotation.w = 1.0
 
-            self.last_world_tf = tf_msg  # Save for future
+            # Pick right camera if available
+            color = self.latest_right_color
+            depth = self.latest_right_depth
+            if color is None or depth is None:
+                self.get_logger().warn("No camera data yet")
+                tf_msg.transform.translation.x = 0.0
+                tf_msg.transform.translation.y = 0.0
+                tf_msg.transform.translation.z = 0.0
+                self.br.sendTransform(tf_msg)
+                return
+
+            # Threshold in HSV to detect object
+            hsv = cv2.cvtColor(color, cv2.COLOR_BGR2HSV)
+            mask = cv2.inRange(hsv,
+                            (self.hue_min, self.saturation_min, self.value_min),
+                            (self.hue_max, 255, 255))
+
+            M = cv2.moments(mask)
+            if M['m00'] == 0:
+                self.get_logger().info("No object found in CV")
+                tf_msg.transform.translation.x = 0.0
+                tf_msg.transform.translation.y = 0.0
+                tf_msg.transform.translation.z = 0.0
+                self.br.sendTransform(tf_msg)
+                return
+
+            # Compute centroid
+            u = int(M['m10'] / M['m00'])
+            v = int(M['m01'] / M['m00'])
+            z = depth[v, u]
+            if z == 0.0 or np.isnan(z):
+                self.get_logger().warn("Depth at centroid invalid")
+                return
+
+            # Backproject to 3D (in camera frame)
+            x = (u - self.cx) * z / self.fx
+            y = (v - self.cy) * z / self.fy
+
+            # Transform to world frame
+            try:
+                tf_cam_world = self.tf_buffer.lookup_transform("world", self.cam_frame, rclpy.time.Time())
+                trans = tf_cam_world.transform.translation
+                rot = tf_cam_world.transform.rotation
+                T = tf_transformations.quaternion_matrix([rot.x, rot.y, rot.z, rot.w])
+                T[0, 3] = trans.x
+                T[1, 3] = trans.y
+                T[2, 3] = trans.z
+                cam_coords = np.array([x, y, z, 1.0])
+                world_coords = T @ cam_coords
+
+                tf_msg.transform.translation.x = world_coords[0]
+                tf_msg.transform.translation.y = world_coords[1]
+                tf_msg.transform.translation.z = world_coords[2]
+
+                self.last_object_tf = tf_msg.transform  # store for reuse
+
+            except Exception as e:
+                self.get_logger().warn(f"TF transform failed: {str(e)}")
+                tf_msg.transform.translation.x = 0.0
+                tf_msg.transform.translation.y = 0.0
+                tf_msg.transform.translation.z = 0.0
 
         elif ch == "world" and eh.startswith(("left", "right")):
             # Reaching toward object – use last known
