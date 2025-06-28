@@ -58,6 +58,12 @@ WorldMockup::WorldMockup(const rclcpp::NodeOptions & options)
   object_.tf.transform.rotation.z = initial_pose_.orientation.z;
   object_.tf.transform.rotation.w = initial_pose_.orientation.w;
 
+  // 3. Broadcast object TF
+  object_.tf.header.stamp = get_clock()->now();
+  object_.tf.header.frame_id = "world";
+  object_.tf.child_frame_id = "object";
+  tf_broadcaster_->sendTransform(object_.tf);
+
   RCLCPP_INFO(get_logger(), "WorldMockup node started.");
 }
 
@@ -161,20 +167,41 @@ void WorldMockup::publish_state()
 
   // TODO: Check fingertip distances and update tactile signals
 
-  // Get transform from camera to world
-  left_cam_.tf = tf_buffer_->lookupTransform("left/camera", "object", tf2::TimePointZero);
-  right_cam_.tf = tf_buffer_->lookupTransform("right/camera", "object", tf2::TimePointZero);
+  // Get transform from object to camera 
+  try {
+    left_cam_.obj_tf = tf_buffer_->lookupTransform("left/camera", "object", tf2::TimePointZero);
+  } catch (const tf2::TransformException & ex) {
+    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000,
+                        "Could not transform from 'object' to 'left/camera': %s", ex.what());
+    return;  // skip this cycle
+  }
 
-  auto left_color = render_sphere_color(object_, left_cam_.tf, left_cam_.color_intrinsics, left_cam_.color_resolution);
-  auto left_depth = render_sphere_depth(object_, left_cam_.tf, left_cam_.depth_intrinsics, left_cam_.depth_resolution);
-  auto right_color = render_sphere_color(object_, right_cam_.tf, right_cam_.color_intrinsics, right_cam_.color_resolution);
-  auto right_depth = render_sphere_depth(object_, right_cam_.tf, right_cam_.depth_intrinsics, right_cam_.depth_resolution);
+  try {
+    right_cam_.obj_tf = tf_buffer_->lookupTransform("right/camera", "object", tf2::TimePointZero);
+  } catch (const tf2::TransformException & ex) {
+    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000,
+                        "Could not transform from 'object' to 'right/camera': %s", ex.what());
+    return;  // skip this cycle
+  }
+
+  auto left_color = render_sphere_color(object_, left_cam_.obj_tf, left_cam_.color_intrinsics, left_cam_.color_resolution);
+  auto left_depth = render_sphere_depth(object_, left_cam_.obj_tf, left_cam_.depth_intrinsics, left_cam_.depth_resolution);
+  auto right_color = render_sphere_color(object_, right_cam_.obj_tf, right_cam_.color_intrinsics, right_cam_.color_resolution);
+  auto right_depth = render_sphere_depth(object_, right_cam_.obj_tf, right_cam_.depth_intrinsics, right_cam_.depth_resolution);
 
   // Convert to ROS msgs
-  auto left_color_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", left_color).toImageMsg();
-  auto left_depth_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "32FC1", left_depth).toImageMsg();
-  auto right_color_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", right_color).toImageMsg();
-  auto right_depth_msg = cv_bridge::CvImage(std_msgs::msg::Header(), "32FC1", right_depth).toImageMsg();
+
+  // Build header
+  std_msgs::msg::Header header;
+  header.stamp = get_clock()->now();
+
+  header.frame_id = "left/camera";  // or "right/camera" for right images
+  auto left_color_msg = cv_bridge::CvImage(header, "bgr8", left_color).toImageMsg();
+  auto left_depth_msg = cv_bridge::CvImage(header, "32FC1", left_depth).toImageMsg();
+
+  header.frame_id = "right/camera";
+  auto right_color_msg = cv_bridge::CvImage(header, "bgr8", right_color).toImageMsg();
+  auto right_depth_msg = cv_bridge::CvImage(header, "32FC1", right_depth).toImageMsg();
 
   left_color_pub_->publish(*left_color_msg);
   left_depth_pub_->publish(*left_depth_msg);
@@ -183,51 +210,58 @@ void WorldMockup::publish_state()
 }
 
 cv::Mat WorldMockup::render_sphere_color(const SimObject & obj,
-                                       const geometry_msgs::msg::TransformStamped & cam_tf,
+                                       const geometry_msgs::msg::TransformStamped & tf_cam_obj,
                                        const std::array<double, 4> & intr,
                                        const std::array<int, 2> & res)
 {
   cv::Mat image(res[1], res[0], CV_8UC3, cv::Scalar(0, 0, 0));
 
   // Transform object center to camera frame
-  tf2::Transform tf;
-  tf2::fromMsg(cam_tf.transform, tf);
-  tf2::Vector3 obj_pos(obj.tf.transform.translation.x,
-                       obj.tf.transform.translation.y,
-                       obj.tf.transform.translation.z);
-  tf2::Vector3 cam_coords = tf.inverse() * obj_pos;
+  tf2::Vector3 cam_coords(tf_cam_obj.transform.translation.x,
+                          tf_cam_obj.transform.translation.y,
+                          tf_cam_obj.transform.translation.z
+                        );
+
+  RCLCPP_DEBUG(get_logger(), "Cam coords: [%.2f, %.2f, %.2f]", cam_coords.x(), cam_coords.y(), cam_coords.z());
 
   if (cam_coords.z() <= 0.1) return image;
 
   double u = intr[0] * (cam_coords.x() / cam_coords.z()) + intr[2];
   double v = intr[1] * (cam_coords.y() / cam_coords.z()) + intr[3];
-
   int radius_px = static_cast<int>(intr[0] * obj.radius / cam_coords.z());
+
+  RCLCPP_DEBUG(get_logger(), "Projected pixel: (u, v) = (%.1f, %.1f), radius_px = %d", u, v, radius_px);
+
+  if (u < 0 || u >= res[0] || v < 0 || v >= res[1]) {
+    RCLCPP_DEBUG(get_logger(), "Object is out of view: skipping draw.");
+    return image;
+  }
+
   cv::circle(image, cv::Point(u, v), radius_px,
              cv::Scalar(255 * obj.color[2], 255 * obj.color[1], 255 * obj.color[0]), -1);
+
   return image;
 }
 
 cv::Mat WorldMockup::render_sphere_depth(const SimObject & obj,
-                                         const geometry_msgs::msg::TransformStamped & cam_tf,
+                                         const geometry_msgs::msg::TransformStamped & tf_cam_obj,
                                          const std::array<double, 4> & intr,
                                          const std::array<int, 2> & res)
 {
   cv::Mat depth(res[1], res[0], CV_32FC1, cv::Scalar(0.0));
 
-  tf2::Transform tf;
-  tf2::fromMsg(cam_tf.transform, tf);
-  tf2::Vector3 obj_pos(obj.tf.transform.translation.x,
-                       obj.tf.transform.translation.y,
-                       obj.tf.transform.translation.z);
-  tf2::Vector3 cam_coords = tf.inverse() * obj_pos;
+  // Transform object center to camera frame
+  tf2::Vector3 cam_coords(tf_cam_obj.transform.translation.x,
+                          tf_cam_obj.transform.translation.y,
+                          tf_cam_obj.transform.translation.z
+                        );
 
   if (cam_coords.z() <= 0.1) return depth;
 
   double u = intr[0] * (cam_coords.x() / cam_coords.z()) + intr[2];
   double v = intr[1] * (cam_coords.y() / cam_coords.z()) + intr[3];
-
   int radius_px = static_cast<int>(intr[0] * obj.radius / cam_coords.z());
+
   cv::circle(depth, cv::Point(u, v), radius_px, cam_coords.z(), -1);
 
   return depth;

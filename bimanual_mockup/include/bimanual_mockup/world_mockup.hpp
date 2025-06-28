@@ -43,7 +43,7 @@ struct Camera
   std::array<double, 4> depth_intrinsics; ///< [fx, fy, cx, cy] 
   std::array<int, 2> depth_resolution;    ///< [width, height]
 
-  geometry_msgs::msg::TransformStamped tf;  ///< Pose of camera in world frame
+  geometry_msgs::msg::TransformStamped obj_tf;  ///< Transform of object in camera frame
 };
 
 /**

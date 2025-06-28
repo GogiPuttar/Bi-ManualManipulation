@@ -59,5 +59,6 @@ def generate_launch_description():
             name='right_cam_tf',
             condition=IfCondition(camera_placeholder),
             arguments=['0.6', '0.6', '1.0', '1', '0', '0', '0', 'world', 'right/camera']
+            # arguments=['0.4', '0.7', '1.0', '1', '0', '0', '0', 'world', 'right/camera']
         ),
     ])
