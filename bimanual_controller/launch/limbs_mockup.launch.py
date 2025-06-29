@@ -43,6 +43,17 @@ def generate_launch_description():
         output='screen'
     )
 
+    limbs_mockup_node = Node(
+        package='bimanual_controller',
+        executable='limbs_mockup_node',
+        name='limbs_mockup_node',
+        output='screen',
+        parameters=[{
+            'grasp_params_file': os.path.join(config_dir, 'grasp_params.yaml'),
+            'motion_params_file': os.path.join(config_dir, 'motion_params.yaml'),
+            }]
+    )
+
     # RVIZ
     rviz = Node(
         condition=IfCondition(use_rviz),
@@ -59,7 +70,16 @@ def generate_launch_description():
             default_value='true',
             description='Whether to launch RViz'
         ),
+        DeclareLaunchArgument(
+            'grasp_params_file', 
+            default_value='config/grasp_params.yaml'
+        ),
+        DeclareLaunchArgument(
+            'motion_params_file', 
+            default_value='config/motion_params.yaml'
+        ),
         system_rsp,
+        limbs_mockup_node,
         rviz,
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([

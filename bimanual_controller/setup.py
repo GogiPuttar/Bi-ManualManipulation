@@ -29,7 +29,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'limb_mockup = bimanual_controller.limb_mockup_node:main',
+            'limbs_mockup_node = bimanual_controller.limbs_mockup_node:main',
         ],
     },
 )
