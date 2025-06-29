@@ -23,7 +23,7 @@ class LimbState:
 
         # Track joint positions
         self.joint_names = [f'{name}_joint_{i+1}' for i in range(7)] + \
-                           [f'{name}_finger_joint_{i+1}' for i in range(16)]
+                           [f'{name}_joint_{i}_0' for i in range(16)]
         self.joint_positions = np.zeros(len(self.joint_names))
         self.joint_lock = Lock()
 
@@ -45,6 +45,20 @@ class LimbState:
         self.release_action = ActionServer(
             node, ReleaseGrasp, f'/{name}/release_grasp', self.execute_release
         )
+        self.move_to_home()
+
+    # Simple clip to home function
+    def move_to_home(self):
+        home_arm_positions = self.motion_params.get('home_position', {}).get(f"{self.name}_arm", [])
+        home_hand_positions = self.motion_params.get('home_position', {}).get(f"{self.name}_hand", [])
+
+        if len(home_arm_positions) == 7 and len(home_hand_positions) == 16:
+            with self.joint_lock:
+                self.joint_positions[:7] = home_arm_positions
+                self.joint_positions[7:23] = home_hand_positions
+            self.node.get_logger().info(f'[{self.name}] Moved to home position: Arm: {home_arm_positions}, Hand:{home_hand_positions}')
+        else:
+            self.node.get_logger().warn(f'[{self.name}] Home position not defined or malformed.')
 
     def tactile_callback(self, msg: JointState):
         # Simulate tactile processing if needed
@@ -97,7 +111,7 @@ class LimbsMockupNode(Node):
         self.grasp_params = self.load_yaml(grasp_path)
 
         # One joint publisher for both limbs
-        self.joint_pub = self.create_publisher(JointState, '/joint_states', 10)
+        self.joint_pub = self.create_publisher(JointState, 'joint_states', 10)
 
         # Each limb handles its own actions
         self.left = LimbState('left', self, self.motion_params, self.grasp_params)
@@ -116,7 +130,7 @@ class LimbsMockupNode(Node):
 
         # Combine both
         combined = JointState()
-        combined.header = self.get_clock().now().to_msg()
+        combined.header.stamp = self.get_clock().now().to_msg()
         combined.name = left_msg.name + right_msg.name
         combined.position = left_msg.position + right_msg.position
         self.joint_pub.publish(combined)

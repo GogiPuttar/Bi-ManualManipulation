@@ -9,7 +9,7 @@
   <joint name="world_to_left_offset" type="fixed">
     <parent link="world"/>
     <child link="left_offset_link"/>
-    <origin xyz="-0.15 0.0 0.0" rpy="-0.2618 0 1.5708"/> <!-- +90 deg Z +15 deg X -->
+    <origin xyz="-0.15 0.0 0.0" rpy="0.2618 0 -1.5708"/> <!-- -90 deg Z +15 deg X -->
   </joint>
 
   <!-- Right offset link -->
@@ -45,7 +45,7 @@
     joint_prefix="left_"
     tip="default"
     parent="left_end_effector_link">
-    <origin xyz="0 0 0.1" rpy="0 0 0"/>
+    <origin xyz="0 0 0.1" rpy="0 0 3.14159"/>
   </xacro:left_allegro_hand>
 
   <!-- Right Arm -->
@@ -84,7 +84,7 @@
   <joint name="left_hand_to_camera" type="fixed">
     <parent link="left_hand_base_link"/>
     <child link="left_camera"/>
-    <origin xyz="0.04 0.0 -0.11" rpy="0 0 0"/>
+    <origin xyz="0.04 0.0 -0.11" rpy="-1.5708 0 -1.5708"/>
   </joint>
 
   <!-- Left index fingertip -->
@@ -134,7 +134,7 @@
   <joint name="right_hand_to_camera" type="fixed">
     <parent link="right_hand_base_link"/>
     <child link="right_camera"/>
-    <origin xyz="0.04 0.0 -0.11" rpy="0 0 0"/>
+    <origin xyz="0.04 0.0 -0.11" rpy="-1.5708 0 -1.5708"/>
   </joint>
 
   <!-- Right index fingertip -->
