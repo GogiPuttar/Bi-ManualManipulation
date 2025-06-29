@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<robot name="left_limb" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Set your base link -->
+  <link name="base_link"/>
+
+  <!-- Load Kinova Gen3 arm -->
+  <xacro:include filename="$(find kortex_description)/arms/gen3/7dof/urdf/gen3_macro.xacro"/>
+  <xacro:load_arm
+    parent="base_link"
+    dof="7"
+    vision="false"
+    prefix="left_"
+    robot_ip="0.0.0.0"
+    gripper_joint_name="left_gripper_joint"
+    use_fake_hardware="true">
+
+    <origin_xyz>0 0 0</origin_xyz>
+
+  </xacro:load_arm>
+
+  <!-- Load Allegro Hand (Left) -->
+  <xacro:include filename="$(find allegro_hand_description)/urdf/leftAllegroHand.urdf.xacro"/>
+  <xacro:left_allegro_hand
+    link_prefix="left_hand_"
+    joint_prefix="left_"
+    tip="default"
+    parent="left_end_effector_link">
+    <origin xyz="0 0 0.1" rpy="0 0 0"/>
+  </xacro:left_allegro_hand>
+
+</robot>

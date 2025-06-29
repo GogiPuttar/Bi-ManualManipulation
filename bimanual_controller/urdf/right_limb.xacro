@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="right_limb">
+
+  <xacro:include filename="$(find kinova_description)/urdf/kinova_gen3.urdf.xacro"/>
+  <xacro:include filename="$(find allegro_hand_description)/urdf/allegro_right.urdf.xacro"/>
+
+  <xacro:property name="prefix" value="right_" />
+
+  <!-- Kinova arm -->
+  <xacro:kinova_gen3 prefix="${prefix}" hand="none" />
+
+  <!-- Allegro hand -->
+  <xacro:allegro_right_hand parent="${prefix}end_effector_link" prefix="${prefix}" />
+
+</robot>
