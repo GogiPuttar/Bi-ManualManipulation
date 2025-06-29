@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<robot name="bimanual_system" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Base world link -->
+  <link name="world"/>
+
+  <!-- Left offset link -->
+  <link name="left_offset_link"/>
+  <joint name="world_to_left_offset" type="fixed">
+    <parent link="world"/>
+    <child link="left_offset_link"/>
+    <origin xyz="-0.3 0.0 0.0" rpy="0 0 1.5708"/> <!-- +90 deg Z -->
+  </joint>
+
+  <!-- Right offset link -->
+  <link name="right_offset_link"/>
+  <joint name="world_to_right_offset" type="fixed">
+    <parent link="world"/>
+    <child link="right_offset_link"/>
+    <origin xyz="0.3 0.0 0.0" rpy="0 0 1.5708"/> <!-- +90 deg Z -->
+  </joint>
+
+  <!-- Load Kinova Gen3 arm macro -->
+  <xacro:include filename="$(find kortex_description)/arms/gen3/7dof/urdf/gen3_macro.xacro"/>
+
+  <!-- Load Allegro macros -->
+  <xacro:include filename="$(find allegro_hand_description)/urdf/leftAllegroHand.urdf.xacro"/>
+  <xacro:include filename="$(find allegro_hand_description)/urdf/rightAllegroHand.urdf.xacro"/>
+
+  <!-- Left Arm -->
+  <xacro:load_arm
+    parent="left_offset_link"
+    dof="7"
+    vision="false"
+    prefix="left_"
+    robot_ip="0.0.0.0"
+    gripper_joint_name="left_gripper_joint"
+    use_fake_hardware="true">
+    <origin_xyz>0 0 0</origin_xyz>
+  </xacro:load_arm>
+
+  <!-- Left Allegro -->
+  <xacro:left_allegro_hand
+    link_prefix="left_hand_"
+    joint_prefix="left_"
+    tip="default"
+    parent="left_end_effector_link">
+    <origin xyz="0 0 0.1" rpy="0 0 0"/>
+  </xacro:left_allegro_hand>
+
+  <!-- Right Arm -->
+  <xacro:load_arm
+    parent="right_offset_link"
+    dof="7"
+    vision="false"
+    prefix="right_"
+    robot_ip="0.0.0.0"
+    gripper_joint_name="right_gripper_joint"
+    use_fake_hardware="true">
+    <origin_xyz>0 0 0</origin_xyz>
+  </xacro:load_arm>
+
+  <!-- Right Allegro -->
+  <xacro:right_allegro_hand
+    link_prefix="right_hand_"
+    joint_prefix="right_"
+    tip="default"
+    parent="right_end_effector_link">
+    <origin xyz="0 0 0.1" rpy="0 0 0"/>
+  </xacro:right_allegro_hand>
+
+  <!-- Additional Fixed TFs for Cameras and Fingertips -->
+
+  <!-- Left palm to camera -->
+  <link name="left/camera"/>
+  <joint name="left_palm_to_camera" type="fixed">
+    <parent link="left_hand_base_link"/>
+    <child link="left/camera"/>
+    <origin xyz="0.0 0.0 0.05" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Left index fingertip -->
+  <link name="left_index_fingertip"/>
+  <joint name="left_index_to_fingertip" type="fixed">
+    <parent link="left_hand_link_3_tip"/>
+    <child link="left_index_fingertip"/>
+    <origin xyz="0 0 0.01" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Left middle fingertip -->
+  <link name="left_middle_fingertip"/>
+  <joint name="left_middle_to_fingertip" type="fixed">
+    <parent link="left_hand_link_7_tip"/>
+    <child link="left_middle_fingertip"/>
+    <origin xyz="0 0 0.01" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Similarly for right hand -->
+
+  <link name="right_camera_link"/>
+  <joint name="right_palm_to_camera" type="fixed">
+    <parent link="right_hand_link_0"/>
+    <child link="right_camera_link"/>
+    <origin xyz="0.0 0.0 0.05" rpy="0 0 0"/>
+  </joint>
+
+  <link name="right_index_fingertip"/>
+  <joint name="right_index_to_fingertip" type="fixed">
+    <parent link="right_hand_link_3_tip"/>
+    <child link="right_index_fingertip"/>
+    <origin xyz="0 0 0.01" rpy="0 0 0"/>
+  </joint>
+
+  <link name="right_middle_fingertip"/>
+  <joint name="right_middle_to_fingertip" type="fixed">
+    <parent link="right_hand_link_7_tip"/>
+    <child link="right_middle_fingertip"/>
+    <origin xyz="0 0 0.01" rpy="0 0 0"/>
+  </joint>
+
+</robot>

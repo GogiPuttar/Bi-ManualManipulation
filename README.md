@@ -14,6 +14,12 @@ git clone -b ros2 https://gitioc.upc.edu/hands/allegro_hand_ros.git
 mv allegro_hand_ros/allegro_hand_description/ .
 rm -rf allegro_hand_ros/
 
+in `allegro_hand_description/urdf/rightAllegroHand.urdf.xacro`
+change 
+<mesh filename="package://allegro_hand_description/meshes/link_3.0_tip.STL"/>
+to 
+<mesh filename="package://allegro_hand_description/meshes/link_3_tip.STL"/>
+
 git clone https://github.com/Kinovarobotics/ros2_kortex.git -b main
 mv ros2_kortex/kortex_description/ .
 rm -rf ros2_kortex/

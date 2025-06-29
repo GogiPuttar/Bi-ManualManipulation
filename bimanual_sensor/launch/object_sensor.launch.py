@@ -35,7 +35,7 @@ def generate_launch_description():
             package='rviz2',
             executable='rviz2',
             name='rviz2',
-            arguments=['-d', os.path.join(get_package_share_directory('bimanual_sensor'), 'config', 'object_sensor.rviz')],
+            arguments=['-d', os.path.join(config_dir, 'object_sensor.rviz')],
             output='screen'
         ),
 

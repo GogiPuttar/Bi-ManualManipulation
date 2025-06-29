@@ -2,12 +2,12 @@
 <robot name="left_limb" xmlns:xacro="http://ros.org/wiki/xacro">
 
   <!-- Set your base link -->
-  <link name="base_link"/>
+  <link name="left_offset_link"/>
 
   <!-- Load Kinova Gen3 arm -->
   <xacro:include filename="$(find kortex_description)/arms/gen3/7dof/urdf/gen3_macro.xacro"/>
   <xacro:load_arm
-    parent="base_link"
+    parent="left_offset_link"
     dof="7"
     vision="false"
     prefix="left_"
