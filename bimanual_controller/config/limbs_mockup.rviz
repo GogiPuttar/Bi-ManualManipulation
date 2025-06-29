@@ -6,6 +6,13 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /TF1/Frames1
+        - /TF1/Tree1/world1
+        - /TF1/Tree1/world1/left_offset_link1
+        - /TF1/Tree1/world1/left_offset_link1/left_base_link1
+        - /TF1/Tree1/world1/left_offset_link1/left_base_link1/left_shoulder_link1
+        - /TF1/Tree1/world1/left_offset_link1/left_base_link1/left_shoulder_link1/left_half_arm_1_link1
+        - /TF1/Tree1/world1/left_offset_link1/left_base_link1/left_shoulder_link1/left_half_arm_1_link1/left_half_arm_2_link1
         - /DepthCloud1/Auto Size1
       Splitter Ratio: 0.6176470518112183
     Tree Height: 549
@@ -52,7 +59,7 @@ Visualization Manager:
       Enabled: true
       Name: Object (Ground Truth)
       Namespaces:
-        {}
+        object: true
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -65,95 +72,147 @@ Visualization Manager:
       Enabled: true
       Frame Timeout: 15
       Frames:
-        All Enabled: true
+        All Enabled: false
         left_base_link:
           Value: true
         left_bracelet_link:
+          Value: false
+        left_camera:
           Value: true
         left_end_effector_link:
-          Value: true
+          Value: false
+        left_forearm_link:
+          Value: false
+        left_half_arm_1_link:
+          Value: false
+        left_half_arm_2_link:
+          Value: false
         left_hand_base_link:
-          Value: true
+          Value: false
+        left_hand_link_0_0:
+          Value: false
+        left_hand_link_10_0:
+          Value: false
         left_hand_link_11_0:
-          Value: true
+          Value: false
         left_hand_link_11_0_tip:
-          Value: true
+          Value: false
+        left_hand_link_12_0:
+          Value: false
+        left_hand_link_13_0:
+          Value: false
+        left_hand_link_14_0:
+          Value: false
         left_hand_link_15_0:
-          Value: true
+          Value: false
         left_hand_link_15_0_tip:
-          Value: true
+          Value: false
+        left_hand_link_1_0:
+          Value: false
+        left_hand_link_2_0:
+          Value: false
         left_hand_link_3_0:
-          Value: true
+          Value: false
         left_hand_link_3_0_tip:
-          Value: true
+          Value: false
+        left_hand_link_4_0:
+          Value: false
+        left_hand_link_5_0:
+          Value: false
+        left_hand_link_6_0:
+          Value: false
         left_hand_link_7_0:
-          Value: true
+          Value: false
         left_hand_link_7_0_tip:
+          Value: false
+        left_hand_link_8_0:
+          Value: false
+        left_hand_link_9_0:
+          Value: false
+        left_index_fingertip:
+          Value: true
+        left_middle_fingertip:
           Value: true
         left_offset_link:
+          Value: false
+        left_palm:
+          Value: true
+        left_pinky_fingertip:
+          Value: true
+        left_shoulder_link:
+          Value: false
+        left_spherical_wrist_1_link:
+          Value: false
+        left_spherical_wrist_2_link:
+          Value: false
+        left_thumb_fingertip:
+          Value: true
+        object:
+          Value: true
+        object_sensed:
           Value: true
         right_base_link:
           Value: true
         right_bracelet_link:
-          Value: true
+          Value: false
         right_end_effector_link:
-          Value: true
+          Value: false
         right_forearm_link:
-          Value: true
+          Value: false
         right_half_arm_1_link:
-          Value: true
+          Value: false
         right_half_arm_2_link:
-          Value: true
+          Value: false
         right_hand_base_link:
-          Value: true
+          Value: false
         right_hand_link_0_0:
-          Value: true
+          Value: false
         right_hand_link_10_0:
-          Value: true
+          Value: false
         right_hand_link_11_0:
-          Value: true
+          Value: false
         right_hand_link_11_0_tip:
-          Value: true
+          Value: false
         right_hand_link_12_0:
-          Value: true
+          Value: false
         right_hand_link_13_0:
-          Value: true
+          Value: false
         right_hand_link_14_0:
-          Value: true
+          Value: false
         right_hand_link_15_0:
-          Value: true
+          Value: false
         right_hand_link_15_0_tip:
-          Value: true
+          Value: false
         right_hand_link_1_0:
-          Value: true
+          Value: false
         right_hand_link_2_0:
-          Value: true
+          Value: false
         right_hand_link_3_0:
-          Value: true
+          Value: false
         right_hand_link_3_0_tip:
-          Value: true
+          Value: false
         right_hand_link_4_0:
-          Value: true
+          Value: false
         right_hand_link_5_0:
-          Value: true
+          Value: false
         right_hand_link_6_0:
-          Value: true
+          Value: false
         right_hand_link_7_0:
-          Value: true
+          Value: false
         right_hand_link_7_0_tip:
-          Value: true
+          Value: false
         right_hand_link_8_0:
-          Value: true
+          Value: false
         right_hand_link_9_0:
-          Value: true
+          Value: false
         right_offset_link:
-          Value: true
+          Value: false
         right_shoulder_link:
-          Value: true
+          Value: false
         right_spherical_wrist_1_link:
-          Value: true
+          Value: false
         right_spherical_wrist_2_link:
-          Value: true
+          Value: false
         world:
           Value: true
       Marker Scale: 0.10000000149011612
@@ -165,7 +224,51 @@ Visualization Manager:
         world:
           left_offset_link:
             left_base_link:
-              {}
+              left_shoulder_link:
+                left_half_arm_1_link:
+                  left_half_arm_2_link:
+                    left_forearm_link:
+                      left_spherical_wrist_1_link:
+                        left_spherical_wrist_2_link:
+                          left_bracelet_link:
+                            left_end_effector_link:
+                              left_hand_base_link:
+                                left_camera:
+                                  {}
+                                left_hand_link_0_0:
+                                  left_hand_link_1_0:
+                                    left_hand_link_2_0:
+                                      left_hand_link_3_0:
+                                        left_hand_link_3_0_tip:
+                                          left_index_fingertip:
+                                            {}
+                                left_hand_link_12_0:
+                                  left_hand_link_13_0:
+                                    left_hand_link_14_0:
+                                      left_hand_link_15_0:
+                                        left_hand_link_15_0_tip:
+                                          left_thumb_fingertip:
+                                            {}
+                                left_hand_link_4_0:
+                                  left_hand_link_5_0:
+                                    left_hand_link_6_0:
+                                      left_hand_link_7_0:
+                                        left_hand_link_7_0_tip:
+                                          left_middle_fingertip:
+                                            {}
+                                left_hand_link_8_0:
+                                  left_hand_link_9_0:
+                                    left_hand_link_10_0:
+                                      left_hand_link_11_0:
+                                        left_hand_link_11_0_tip:
+                                          left_pinky_fingertip:
+                                            {}
+                                left_palm:
+                                  {}
+          object:
+            {}
+          object_sensed:
+            {}
           right_offset_link:
             right_base_link:
               right_shoulder_link:
@@ -300,6 +403,209 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
+      Mass Properties:
+        Inertia: false
+        Mass: false
+      Name: Right Limb
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Alpha: 1
+      Class: rviz_default_plugins/RobotModel
+      Collision Enabled: false
+      Description File: ""
+      Description Source: Topic
+      Description Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /left/robot_description
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        left_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_bracelet_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_camera:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        left_end_effector_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        left_forearm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_half_arm_1_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_half_arm_2_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_0_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_10_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_11_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_11_0_tip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_12_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_13_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_14_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_15_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_15_0_tip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_1_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_2_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_3_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_3_0_tip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_4_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_5_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_6_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_7_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_7_0_tip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_8_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_hand_link_9_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_index_fingertip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        left_middle_fingertip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        left_offset_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        left_palm:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        left_pinky_fingertip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        left_shoulder_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_spherical_wrist_1_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_spherical_wrist_2_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_thumb_fingertip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         right_base_link:
           Alpha: 1
           Show Axes: false
@@ -453,185 +759,10 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-      Mass Properties:
-        Inertia: false
-        Mass: false
-      Name: Right Limb
-      TF Prefix: ""
-      Update Interval: 0
-      Value: true
-      Visual Enabled: true
-    - Alpha: 1
-      Class: rviz_default_plugins/RobotModel
-      Collision Enabled: false
-      Description File: ""
-      Description Source: Topic
-      Description Topic:
-        Depth: 5
-        Durability Policy: Volatile
-        History Policy: Keep Last
-        Reliability Policy: Reliable
-        Value: /left/robot_description
-      Enabled: true
-      Links:
-        All Links Enabled: true
-        Expand Joint Details: false
-        Expand Link Details: false
-        Expand Tree: false
-        Link Tree Style: Links in Alphabetic Order
-        left_base_link:
+        world:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-          Value: true
-        left_bracelet_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_end_effector_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        left_forearm_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_half_arm_1_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_half_arm_2_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_0_0:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_10_0:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_11_0:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_11_0_tip:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_12_0:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_13_0:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_14_0:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_15_0:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_15_0_tip:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_1_0:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_2_0:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_3_0:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_3_0_tip:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_4_0:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_5_0:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_6_0:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_7_0:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_7_0_tip:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_8_0:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_hand_link_9_0:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_offset_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        left_shoulder_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_spherical_wrist_1_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        left_spherical_wrist_2_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
       Mass Properties:
         Inertia: false
         Mass: false
@@ -686,7 +817,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 4.636020183563232
+      Distance: 3.0003468990325928
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -701,10 +832,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.0503979921340942
+      Pitch: 1.130398154258728
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.670452117919922
+      Yaw: 4.7022857666015625
     Saved: ~
 Window Geometry:
   Displays:

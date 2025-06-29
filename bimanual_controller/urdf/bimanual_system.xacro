@@ -9,7 +9,7 @@
   <joint name="world_to_left_offset" type="fixed">
     <parent link="world"/>
     <child link="left_offset_link"/>
-    <origin xyz="-0.3 0.0 0.0" rpy="0 0 1.5708"/> <!-- +90 deg Z -->
+    <origin xyz="-0.15 0.0 0.0" rpy="-0.2618 0 1.5708"/> <!-- +90 deg Z -->
   </joint>
 
   <!-- Right offset link -->
@@ -17,7 +17,7 @@
   <joint name="world_to_right_offset" type="fixed">
     <parent link="world"/>
     <child link="right_offset_link"/>
-    <origin xyz="0.3 0.0 0.0" rpy="0 0 1.5708"/> <!-- +90 deg Z -->
+    <origin xyz="0.15 0.0 0.0" rpy="0.2618 0 1.5708"/> <!-- +90 deg Z -->
   </joint>
 
   <!-- Load Kinova Gen3 arm macro -->
@@ -71,51 +71,102 @@
 
   <!-- Additional Fixed TFs for Cameras and Fingertips -->
 
-  <!-- Left palm to camera -->
-  <link name="left/camera"/>
-  <joint name="left_palm_to_camera" type="fixed">
+  <!-- Left hand to palm -->
+  <link name="left_palm"/>
+  <joint name="left_hand_to_palm" type="fixed">
     <parent link="left_hand_base_link"/>
-    <child link="left/camera"/>
-    <origin xyz="0.0 0.0 0.05" rpy="0 0 0"/>
+    <child link="left_palm"/>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Left hand to camera -->
+  <link name="left_camera"/>
+  <joint name="left_hand_to_camera" type="fixed">
+    <parent link="left_hand_base_link"/>
+    <child link="left_camera"/>
+    <origin xyz="0.04 0.0 -0.11" rpy="0 0 0"/>
   </joint>
 
   <!-- Left index fingertip -->
   <link name="left_index_fingertip"/>
   <joint name="left_index_to_fingertip" type="fixed">
-    <parent link="left_hand_link_3_tip"/>
+    <parent link="left_hand_link_3_0_tip"/>
     <child link="left_index_fingertip"/>
-    <origin xyz="0 0 0.01" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
   </joint>
 
   <!-- Left middle fingertip -->
   <link name="left_middle_fingertip"/>
   <joint name="left_middle_to_fingertip" type="fixed">
-    <parent link="left_hand_link_7_tip"/>
+    <parent link="left_hand_link_7_0_tip"/>
     <child link="left_middle_fingertip"/>
-    <origin xyz="0 0 0.01" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Left pinky fingertip -->
+  <link name="left_pinky_fingertip"/>
+  <joint name="left_pinky_to_fingertip" type="fixed">
+    <parent link="left_hand_link_11_0_tip"/>
+    <child link="left_pinky_fingertip"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Left thumb fingertip -->
+  <link name="left_thumb_fingertip"/>
+  <joint name="left_thumb_to_fingertip" type="fixed">
+    <parent link="left_hand_link_15_0_tip"/>
+    <child link="left_thumb_fingertip"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
   </joint>
 
   <!-- Similarly for right hand -->
 
-  <link name="right_camera_link"/>
-  <joint name="right_palm_to_camera" type="fixed">
-    <parent link="right_hand_link_0"/>
-    <child link="right_camera_link"/>
-    <origin xyz="0.0 0.0 0.05" rpy="0 0 0"/>
+  <!-- Right hand to palm -->
+  <link name="right_palm"/>
+  <joint name="right_hand_to_palm" type="fixed">
+    <parent link="right_hand_base_link"/>
+    <child link="right_palm"/>
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
   </joint>
 
+  <!-- Right hand to camera -->
+  <link name="right_camera"/>
+  <joint name="right_hand_to_camera" type="fixed">
+    <parent link="right_hand_base_link"/>
+    <child link="right_camera"/>
+    <origin xyz="0.04 0.0 -0.11" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Right index fingertip -->
   <link name="right_index_fingertip"/>
   <joint name="right_index_to_fingertip" type="fixed">
-    <parent link="right_hand_link_3_tip"/>
+    <parent link="right_hand_link_3_0_tip"/>
     <child link="right_index_fingertip"/>
-    <origin xyz="0 0 0.01" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
   </joint>
 
+  <!-- Right middle fingertip -->
   <link name="right_middle_fingertip"/>
   <joint name="right_middle_to_fingertip" type="fixed">
-    <parent link="right_hand_link_7_tip"/>
+    <parent link="right_hand_link_7_0_tip"/>
     <child link="right_middle_fingertip"/>
-    <origin xyz="0 0 0.01" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Right pinky fingertip -->
+  <link name="right_pinky_fingertip"/>
+  <joint name="right_pinky_to_fingertip" type="fixed">
+    <parent link="right_hand_link_11_0_tip"/>
+    <child link="right_pinky_fingertip"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Right thumb fingertip -->
+  <link name="right_thumb_fingertip"/>
+  <joint name="right_thumb_to_fingertip" type="fixed">
+    <parent link="right_hand_link_15_0_tip"/>
+    <child link="right_thumb_fingertip"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
   </joint>
 
 </robot>
