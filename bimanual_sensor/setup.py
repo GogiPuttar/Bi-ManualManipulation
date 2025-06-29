@@ -16,7 +16,7 @@ setup(
         # Install launch and config folders
         (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
-        (os.path.join('share', package_name, 'config'), glob('config/*.rviz')),  # Optional
+        (os.path.join('share', package_name, 'config'), glob('config/*.rviz')),
     ],
     install_requires=['setuptools', 'rclpy', 'bimanual_msgs'],
     zip_safe=True,

@@ -1,4 +1,4 @@
-camera_frame: "right/camera"
+camera_frame: "right_camera"
 fx: 525.0
 fy: 525.0
 cx: 320.0

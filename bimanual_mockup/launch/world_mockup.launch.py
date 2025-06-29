@@ -49,7 +49,7 @@ def generate_launch_description():
             executable='static_transform_publisher',
             name='left_cam_tf',
             condition=IfCondition(camera_placeholder),
-            arguments=['-0.6', '0.6', '1.0', '1', '0', '0', '0', 'world', 'left/camera']
+            arguments=['-0.6', '0.6', '1.0', '1', '0', '0', '0', 'world', 'left_camera']
         ),
 
         # ---- Right Camera Placeholder TF ----
@@ -58,7 +58,7 @@ def generate_launch_description():
             executable='static_transform_publisher',
             name='right_cam_tf',
             condition=IfCondition(camera_placeholder),
-            arguments=['0.6', '0.6', '1.0', '1', '0', '0', '0', 'world', 'right/camera']
-            # arguments=['0.4', '0.7', '1.0', '1', '0', '0', '0', 'world', 'right/camera']
+            arguments=['0.6', '0.6', '1.0', '1', '0', '0', '0', 'world', 'right_camera']
+            # arguments=['0.4', '0.7', '1.0', '1', '0', '0', '0', 'world', 'right_camera']
         ),
     ])

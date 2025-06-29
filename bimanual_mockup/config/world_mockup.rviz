@@ -66,11 +66,11 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
-        left/camera:
+        left_camera:
           Value: true
         object:
           Value: true
-        right/camera:
+        right_camera:
           Value: true
         world:
           Value: true
@@ -85,7 +85,7 @@ Visualization Manager:
             {}
           object:
             {}
-          right/camera:
+          right_camera:
             {}
       Update Interval: 0
       Value: true

@@ -1,2 +1,2 @@
-string current_holder     # Current TF frame of the object parent ("world" | "left/palm" | "right/palm" | "bin")
-string expected_holder    # Next TF frame of the object parent ("world" | "left/palm" | "right/palm" | "bin")
+string current_holder     # Current TF frame of the object parent ("world" | "left_palm" | "right_palm" | "bin")
+string expected_holder    # Next TF frame of the object parent ("world" | "left_palm" | "right_palm" | "bin")

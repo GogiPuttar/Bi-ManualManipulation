@@ -169,18 +169,18 @@ void WorldMockup::publish_state()
 
   // Get transform from object to camera 
   try {
-    left_cam_.obj_tf = tf_buffer_->lookupTransform("left/camera", "object", tf2::TimePointZero);
+    left_cam_.obj_tf = tf_buffer_->lookupTransform("left_camera", "object", tf2::TimePointZero);
   } catch (const tf2::TransformException & ex) {
     RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000,
-                        "Could not transform from 'object' to 'left/camera': %s", ex.what());
+                        "Could not transform from 'object' to 'left_camera': %s", ex.what());
     return;  // skip this cycle
   }
 
   try {
-    right_cam_.obj_tf = tf_buffer_->lookupTransform("right/camera", "object", tf2::TimePointZero);
+    right_cam_.obj_tf = tf_buffer_->lookupTransform("right_camera", "object", tf2::TimePointZero);
   } catch (const tf2::TransformException & ex) {
     RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 2000,
-                        "Could not transform from 'object' to 'right/camera': %s", ex.what());
+                        "Could not transform from 'object' to 'right_camera': %s", ex.what());
     return;  // skip this cycle
   }
 
@@ -195,11 +195,11 @@ void WorldMockup::publish_state()
   std_msgs::msg::Header header;
   header.stamp = get_clock()->now();
 
-  header.frame_id = "left/camera";  // or "right/camera" for right images
+  header.frame_id = "left_camera";  // or "right_camera" for right images
   auto left_color_msg = cv_bridge::CvImage(header, "bgr8", left_color).toImageMsg();
   auto left_depth_msg = cv_bridge::CvImage(header, "32FC1", left_depth).toImageMsg();
 
-  header.frame_id = "right/camera";
+  header.frame_id = "right_camera";
   auto right_color_msg = cv_bridge::CvImage(header, "bgr8", right_color).toImageMsg();
   auto right_depth_msg = cv_bridge::CvImage(header, "32FC1", right_depth).toImageMsg();
 
