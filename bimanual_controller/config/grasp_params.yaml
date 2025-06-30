@@ -1,0 +1,23 @@
+# Index: left_joint_0_0, left_joint_1_0, left_joint_2_0, left_joint_3_0, 
+# Middle: left_joint_4_0, left_joint_5_0, left_joint_6_0, left_joint_7_0, 
+# Pinky: left_joint_8_0, left_joint_9_0, left_joint_10_0, left_joint_11_0, 
+# Thumb: left_joint_12_0, left_joint_13_0, left_joint_14_0, left_joint_15_0
+left_hand_release_position:   [ 0.0, 0.0, 0.0, 0.0,
+                                0.0, 0.0, 0.0, 0.0, 
+                                0.0, 0.0, 0.0, 0.0, 
+                                0.0, 0.0, 0.0, 0.0] 
+
+left_hand_grasp_position:     [ 0.0, 0.0, 0.0, 0.0,
+                                0.0, 0.0, 0.0, 0.0, 
+                                0.0, 0.0, 0.0, 0.0, 
+                                0.0, 0.0, 0.0, 0.0] 
+
+right_hand_release_position:  [ 0.0, 0.0, 0.0, 0.0,
+                                0.0, 0.0, 0.0, 0.0, 
+                                0.0, 0.0, 0.0, 0.0, 
+                                2.0, 0.0, 0.0, 0.0] 
+
+right_hand_grasp_position:     [ 0.0, 1.0, 1.0, 1.0,
+                                0.0, 1.0, 1.0, 1.0, 
+                                0.0, 1.0, 1.0, 1.0, 
+                                2.0, 1.0, 1.0, 1.0] 

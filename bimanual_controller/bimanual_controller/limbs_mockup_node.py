@@ -12,7 +12,6 @@ from threading import Lock
 import numpy as np
 import time
 import yaml
-import os
 
 class LimbState:
     def __init__(self, name, node, motion_params, grasp_params):
@@ -26,6 +25,11 @@ class LimbState:
                            [f'{name}_joint_{i}_0' for i in range(16)]
         self.joint_positions = np.zeros(len(self.joint_names))
         self.joint_lock = Lock()
+
+        self.finger_release_speed = self.motion_params.get('finger_release_speed', 0.0)
+        self.finger_grasp_speed = self.motion_params.get('finger_grasp_speed', 0.0)
+        self.grasp_position = np.array(self.grasp_params.get(f"{self.name}_hand_grasp_position", np.zeros(16)))
+        self.release_position = np.array(self.grasp_params.get(f"{self.name}_hand_release_position", np.zeros(16)))
 
         # Tactile subscription
         node.create_subscription(
@@ -45,6 +49,7 @@ class LimbState:
         self.release_action = ActionServer(
             node, ReleaseGrasp, f'/{name}/release_grasp', self.execute_release
         )
+        
         self.move_to_home()
 
     # Simple clip to home function
@@ -80,11 +85,50 @@ class LimbState:
         goal_handle.succeed()
         return GraspUntilContact.Result(success=True, final_closure=[1.0]*4)
 
-    async def execute_release(self, goal_handle):
+    def execute_release(self, goal_handle):
         self.node.get_logger().info(f'[{self.name}] Executing ReleaseGrasp...')
-        await rclpy.sleep(1.0)
+        target_fingers = goal_handle.request.target_opening or [0.0] * 4
+
+        target = np.zeros(16)
+        target[0:4] = target_fingers[0] * self.release_position[0:4]
+        target[4:8] = target_fingers[1] * self.release_position[4:8]
+        target[8:12] = target_fingers[2] * self.release_position[8:12]
+        target[12:16] = target_fingers[3] * self.release_position[12:16]
+
+        target = np.clip(np.array(target), 0.0, 1.0)
+
+        with self.joint_lock:
+            current = self.joint_positions[7:23].copy()
+
+        update_rate = 50.0
+        dt = 1.0 / update_rate
+        threshold = 0.01
+
+        while True:
+            with self.joint_lock:
+                current = self.joint_positions[7:23].copy()
+
+            error = target - current
+            if np.linalg.norm(error) < threshold:
+                break
+
+            delta = np.clip(error, -self.finger_release_speed * dt, self.finger_release_speed * dt)
+            new_pos = current + delta
+
+            with self.joint_lock:
+                self.joint_positions[7:23] = new_pos
+
+            feedback = ReleaseGrasp.Feedback()
+            feedback.current_closure = self.joint_positions[7:23].tolist()
+            goal_handle.publish_feedback(feedback)
+
+            time.sleep(dt)
+
         goal_handle.succeed()
-        return ReleaseGrasp.Result(success=True, final_closure=[0.0]*4)
+        return ReleaseGrasp.Result(
+            success=True,
+            final_closure=self.joint_positions[7:23].tolist()
+        )
 
     def get_joint_state_msg(self):
         with self.joint_lock:
@@ -138,5 +182,14 @@ class LimbsMockupNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = LimbsMockupNode()
-    rclpy.spin(node)
-    rclpy.shutdown()
+
+    from rclpy.executors import MultiThreadedExecutor
+    executor = MultiThreadedExecutor()
+    executor.add_node(node)
+
+    try:
+        executor.spin()
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+

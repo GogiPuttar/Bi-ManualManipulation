@@ -16,3 +16,6 @@ home_position:
               0.0, 0.0, 0.0, 0.0, 
               0.0, 0.0, 0.0, 0.0] 
 default_move_duration: 3.0  # optional default
+
+finger_grasp_speed: 0.2
+finger_release_speed: 0.3

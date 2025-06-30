@@ -75,23 +75,53 @@ Visualization Manager:
           Value: true
         left_end_effector_link:
           Value: false
+        left_forearm_link:
+          Value: false
+        left_half_arm_1_link:
+          Value: false
+        left_half_arm_2_link:
+          Value: false
         left_hand_base_link:
+          Value: false
+        left_hand_link_0_0:
+          Value: false
+        left_hand_link_10_0:
           Value: false
         left_hand_link_11_0:
           Value: false
         left_hand_link_11_0_tip:
           Value: false
+        left_hand_link_12_0:
+          Value: false
+        left_hand_link_13_0:
+          Value: false
+        left_hand_link_14_0:
+          Value: false
         left_hand_link_15_0:
           Value: false
         left_hand_link_15_0_tip:
+          Value: false
+        left_hand_link_1_0:
+          Value: false
+        left_hand_link_2_0:
           Value: false
         left_hand_link_3_0:
           Value: false
         left_hand_link_3_0_tip:
           Value: false
+        left_hand_link_4_0:
+          Value: false
+        left_hand_link_5_0:
+          Value: false
+        left_hand_link_6_0:
+          Value: false
         left_hand_link_7_0:
           Value: false
         left_hand_link_7_0_tip:
+          Value: false
+        left_hand_link_8_0:
+          Value: false
+        left_hand_link_9_0:
           Value: false
         left_index_fingertip:
           Value: true
@@ -103,6 +133,12 @@ Visualization Manager:
           Value: true
         left_pinky_fingertip:
           Value: true
+        left_shoulder_link:
+          Value: false
+        left_spherical_wrist_1_link:
+          Value: false
+        left_spherical_wrist_2_link:
+          Value: false
         left_thumb_fingertip:
           Value: true
         object:
@@ -117,23 +153,53 @@ Visualization Manager:
           Value: true
         right_end_effector_link:
           Value: false
+        right_forearm_link:
+          Value: false
+        right_half_arm_1_link:
+          Value: false
+        right_half_arm_2_link:
+          Value: false
         right_hand_base_link:
+          Value: false
+        right_hand_link_0_0:
+          Value: false
+        right_hand_link_10_0:
           Value: false
         right_hand_link_11_0:
           Value: false
         right_hand_link_11_0_tip:
           Value: false
+        right_hand_link_12_0:
+          Value: false
+        right_hand_link_13_0:
+          Value: false
+        right_hand_link_14_0:
+          Value: false
         right_hand_link_15_0:
           Value: false
         right_hand_link_15_0_tip:
+          Value: false
+        right_hand_link_1_0:
+          Value: false
+        right_hand_link_2_0:
           Value: false
         right_hand_link_3_0:
           Value: false
         right_hand_link_3_0_tip:
           Value: false
+        right_hand_link_4_0:
+          Value: false
+        right_hand_link_5_0:
+          Value: false
+        right_hand_link_6_0:
+          Value: false
         right_hand_link_7_0:
           Value: false
         right_hand_link_7_0_tip:
+          Value: false
+        right_hand_link_8_0:
+          Value: false
+        right_hand_link_9_0:
           Value: false
         right_index_fingertip:
           Value: true
@@ -145,6 +211,12 @@ Visualization Manager:
           Value: true
         right_pinky_fingertip:
           Value: true
+        right_shoulder_link:
+          Value: false
+        right_spherical_wrist_1_link:
+          Value: false
+        right_spherical_wrist_2_link:
+          Value: false
         right_thumb_fingertip:
           Value: true
         world:
@@ -158,14 +230,94 @@ Visualization Manager:
         world:
           left_offset_link:
             left_base_link:
-              {}
+              left_shoulder_link:
+                left_half_arm_1_link:
+                  left_half_arm_2_link:
+                    left_forearm_link:
+                      left_spherical_wrist_1_link:
+                        left_spherical_wrist_2_link:
+                          left_bracelet_link:
+                            left_end_effector_link:
+                              left_hand_base_link:
+                                left_camera:
+                                  {}
+                                left_hand_link_0_0:
+                                  left_hand_link_1_0:
+                                    left_hand_link_2_0:
+                                      left_hand_link_3_0:
+                                        left_hand_link_3_0_tip:
+                                          left_index_fingertip:
+                                            {}
+                                left_hand_link_12_0:
+                                  left_hand_link_13_0:
+                                    left_hand_link_14_0:
+                                      left_hand_link_15_0:
+                                        left_hand_link_15_0_tip:
+                                          left_thumb_fingertip:
+                                            {}
+                                left_hand_link_4_0:
+                                  left_hand_link_5_0:
+                                    left_hand_link_6_0:
+                                      left_hand_link_7_0:
+                                        left_hand_link_7_0_tip:
+                                          left_middle_fingertip:
+                                            {}
+                                left_hand_link_8_0:
+                                  left_hand_link_9_0:
+                                    left_hand_link_10_0:
+                                      left_hand_link_11_0:
+                                        left_hand_link_11_0_tip:
+                                          left_pinky_fingertip:
+                                            {}
+                                left_palm:
+                                  {}
           object:
             {}
           object_sensed:
             {}
           right_offset_link:
             right_base_link:
-              {}
+              right_shoulder_link:
+                right_half_arm_1_link:
+                  right_half_arm_2_link:
+                    right_forearm_link:
+                      right_spherical_wrist_1_link:
+                        right_spherical_wrist_2_link:
+                          right_bracelet_link:
+                            right_end_effector_link:
+                              right_hand_base_link:
+                                right_camera:
+                                  {}
+                                right_hand_link_0_0:
+                                  right_hand_link_1_0:
+                                    right_hand_link_2_0:
+                                      right_hand_link_3_0:
+                                        right_hand_link_3_0_tip:
+                                          right_index_fingertip:
+                                            {}
+                                right_hand_link_12_0:
+                                  right_hand_link_13_0:
+                                    right_hand_link_14_0:
+                                      right_hand_link_15_0:
+                                        right_hand_link_15_0_tip:
+                                          right_thumb_fingertip:
+                                            {}
+                                right_hand_link_4_0:
+                                  right_hand_link_5_0:
+                                    right_hand_link_6_0:
+                                      right_hand_link_7_0:
+                                        right_hand_link_7_0_tip:
+                                          right_middle_fingertip:
+                                            {}
+                                right_hand_link_8_0:
+                                  right_hand_link_9_0:
+                                    right_hand_link_10_0:
+                                      right_hand_link_11_0:
+                                        right_hand_link_11_0_tip:
+                                          right_pinky_fingertip:
+                                            {}
+                                right_palm:
+                                  {}
       Update Interval: 0
       Value: true
     - Class: rviz_default_plugins/Image
@@ -238,7 +390,7 @@ Visualization Manager:
       Enabled: true
       Name: Object (Sensed)
       Namespaces:
-        {}
+        object_sensed: true
       Topic:
         Depth: 5
         Durability Policy: Volatile
