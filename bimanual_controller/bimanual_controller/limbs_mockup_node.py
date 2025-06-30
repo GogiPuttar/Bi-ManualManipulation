@@ -69,7 +69,7 @@ class LimbState:
 
     def tactile_callback(self, msg: Tactile):
         # Expecting msg.name: [..., left_index_contact, ..., left_middle_contact, ...]
-        for i in range(len(msg.contacts)):
+        for i in range(4):
             self.tactile_contact[i] = bool(msg.contacts[i])
 
     async def execute_move(self, goal_handle):
