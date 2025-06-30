@@ -35,6 +35,7 @@ class ObjectSensor(Node):
         self.last_world_tf = None
         self.locked_palm_tf = None
         self.locked_palm_parent = None
+        self.object_locked = False
 
         self.bridge = CvBridge()
         self.br = TransformBroadcaster(self)
@@ -102,6 +103,16 @@ class ObjectSensor(Node):
         ch = self.grasp_state.current_holder
         eh = self.grasp_state.expected_holder
 
+        # Prevent pose clobbering once grasped
+        if self.object_locked and self.locked_palm_tf:
+            tf_msg.header.stamp = self.get_clock().now().to_msg()
+            tf_msg.header.frame_id = self.locked_palm_tf.header.frame_id
+            tf_msg.child_frame_id = "object_sensed"
+            tf_msg.transform = self.locked_palm_tf.transform
+            self.br.sendTransform(tf_msg)
+            self.publish_marker()
+            return
+
         if ch == "world" and eh == "world":
             tf_msg.header.frame_id = "world"
             tf_msg.transform.rotation.w = 1.0
@@ -160,7 +171,7 @@ class ObjectSensor(Node):
                 tf_msg.transform.translation.y = world_coords[1]
                 tf_msg.transform.translation.z = world_coords[2]
 
-                self.last_object_tf = tf_msg.transform  # store for reuse
+                self.last_world_tf = tf_msg
 
             except Exception as e:
                 self.get_logger().warn(f"TF transform failed: {str(e)}")
@@ -171,29 +182,67 @@ class ObjectSensor(Node):
         elif ch == "world" and eh.startswith(("left", "right")):
             # Reaching toward object – use last known
             if self.last_world_tf:
-                tf_msg = self.last_world_tf
+                tf_msg = TransformStamped()
+                tf_msg.header.stamp = self.get_clock().now().to_msg()
+                tf_msg.header.frame_id = self.last_world_tf.header.frame_id
+                tf_msg.child_frame_id = "object_sensed"
+                tf_msg.transform = self.last_world_tf.transform
             else:
-                return  # Nothing to publish yet
+                self.get_logger().warn("No last_world_tf available yet!")
+                return
 
         elif ch.startswith(("left", "right")) and eh.startswith(("left", "right")):
             # Grasp handoff in progress – lock palm-relative TF once
             if self.locked_palm_tf is None or self.locked_palm_parent != ch:
-                self.locked_palm_tf = TransformStamped()
-                self.locked_palm_tf.header.stamp = self.get_clock().now().to_msg()
-                self.locked_palm_tf.header.frame_id = ch
-                self.locked_palm_tf.child_frame_id = "object_sensed"
-                self.locked_palm_tf.transform.translation.x = 0.0
-                self.locked_palm_tf.transform.translation.y = 0.0
-                self.locked_palm_tf.transform.translation.z = 0.0
-                self.locked_palm_tf.transform.rotation.w = 1.0
-                self.locked_palm_parent = ch
+                try:
+                    tf = self.tf_buffer.lookup_transform(
+                        "object_sensed", ch, rclpy.time.Time(), timeout=rclpy.duration.Duration(seconds=0.1)
+                    )
+                    # Invert the transform so that we get palm → object
+                    trans = tf.transform.translation
+                    rot = tf.transform.rotation
 
-            tf_msg = self.locked_palm_tf
+                    T = tf_transformations.quaternion_matrix([rot.x, rot.y, rot.z, rot.w])
+                    T[0, 3] = trans.x
+                    T[1, 3] = trans.y
+                    T[2, 3] = trans.z
+                    T_inv = np.linalg.inv(T)
+
+                    trans_inv = T_inv[:3, 3]
+                    rot_inv = tf_transformations.quaternion_from_matrix(T_inv)
+
+                    self.locked_palm_tf = TransformStamped()
+                    self.locked_palm_tf.header.stamp = self.get_clock().now().to_msg()
+                    self.locked_palm_tf.header.frame_id = ch
+                    self.locked_palm_tf.child_frame_id = "object_sensed"
+                    self.locked_palm_tf.transform.translation.x = trans_inv[0]
+                    self.locked_palm_tf.transform.translation.y = trans_inv[1]
+                    self.locked_palm_tf.transform.translation.z = trans_inv[2]
+                    self.locked_palm_tf.transform.rotation.x = rot_inv[0]
+                    self.locked_palm_tf.transform.rotation.y = rot_inv[1]
+                    self.locked_palm_tf.transform.rotation.z = rot_inv[2]
+                    self.locked_palm_tf.transform.rotation.w = rot_inv[3]
+
+                    self.locked_palm_parent = ch
+                    self.get_logger().info(f"Locked palm-relative TF for {ch}")
+                except Exception as e:
+                    self.get_logger().warn(f"Failed to lock palm-relative TF: {str(e)}")
+                    return
+
+            tf_msg = TransformStamped()
+            tf_msg.header.stamp = self.get_clock().now().to_msg()
+            tf_msg.header.frame_id = self.locked_palm_tf.header.frame_id
+            tf_msg.child_frame_id = "object_sensed"
+            tf_msg.transform = self.locked_palm_tf.transform
 
         elif ch.startswith(("left", "right")) and eh == "bin":
             # Object held in final hand – use previously locked TF
             if self.locked_palm_tf:
-                tf_msg = self.locked_palm_tf
+                tf_msg = TransformStamped()
+                tf_msg.header.stamp = self.get_clock().now().to_msg()
+                tf_msg.header.frame_id = self.locked_palm_tf.header.frame_id
+                tf_msg.child_frame_id = "object_sensed"
+                tf_msg.transform = self.locked_palm_tf.transform
             else:
                 return
 
@@ -209,14 +258,15 @@ class ObjectSensor(Node):
 
         # Marker logic
         marker = Marker()
-        marker.header = tf_msg.header
+        marker.header.frame_id = "object_sensed"
+        marker.header.stamp = self.get_clock().now().to_msg()
         marker.ns = "object_sensed"
         marker.id = 0
         marker.type = Marker.SPHERE
         marker.action = Marker.ADD
-        marker.pose.position.x = tf_msg.transform.translation.x
-        marker.pose.position.y = tf_msg.transform.translation.y
-        marker.pose.position.z = tf_msg.transform.translation.z
+        marker.pose.position.x = 0.0
+        marker.pose.position.y = 0.0
+        marker.pose.position.z = 0.0
         marker.pose.orientation.w = 1.0
         marker.scale.x = marker.scale.y = marker.scale.z = 0.1
         marker.color.r = 0.7
@@ -224,9 +274,7 @@ class ObjectSensor(Node):
         marker.color.b = 0.7
         marker.color.a = 1.0
 
-        if not marker.pose.position == Point():
-            self.marker_pub.publish(marker)
-
+        self.marker_pub.publish(marker)
 
 def main(args=None):
     rclpy.init(args=args)

@@ -1,0 +1,72 @@
+standoff_relative_pose:
+  x: 0.0
+  y: 0.0
+  z: 0.11 
+  qx: 0.0
+  qy: 0.0
+  qz: 0.0
+  qw: 1.0
+grasp_relative_pose:
+  x: 0.0
+  y: 0.0
+  z: 0.08
+  qx: 0.0
+  qy: 0.0
+  qz: 0.0
+  qw: 1.0
+handoff_standoff_pose_right:
+  x: 0.14
+  y: 0.8
+  z: 0.3
+  qx: 0.0
+  qy: 0.7071
+  qz: 0.0
+  qw: 0.7071
+handoff_pose_right:
+  x: 0.1
+  y: 0.8
+  z: 0.3
+  qx: 0.0
+  qy: 0.7071
+  qz: 0.0
+  qw: 0.7071
+  # qx: -0.2706
+  # qy: 0.6533
+  # qz: -0.2706
+  # qw: 0.6533
+handoff_standoff_pose_left:
+  x: -0.14
+  y: 0.8
+  z: 0.3
+  qx: 0.0
+  qy: -0.7071
+  qz: 0.0
+  qw: 0.7071
+handoff_pose_left:
+  x: -0.08
+  y: 0.8
+  z: 0.3
+  # qx: 0.0
+  # qy: -0.7071
+  # qz: 0.0
+  # qw: 0.7071
+  qx: -0.123
+  qy: -0.696
+  qz: 0.123
+  qw: 0.696
+bin_pose:
+  x: -0.6
+  y: 0.2
+  z: 0.3
+  qx: 0.0
+  qy: 0.0
+  qz: 0.0
+  qw: 1.0
+watch_pose_right:
+  x: 0.3
+  y: 0.7
+  z: 0.4
+  qx: 0.0
+  qy: 0.0
+  qz: 0.0
+  qw: 1.0

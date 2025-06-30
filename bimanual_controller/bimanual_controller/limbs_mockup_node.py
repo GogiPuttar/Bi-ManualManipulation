@@ -91,7 +91,7 @@ class LimbState:
             # Clean URDF
             cleaned_urdf = self.remove_unsupported_tags(self.robot_description)
 
-            self.node.get_logger().warn(f'{cleaned_urdf}')
+            # self.node.get_logger().warn(f'{cleaned_urdf}')
 
             robot = URDF.from_xml_string(cleaned_urdf)
 
