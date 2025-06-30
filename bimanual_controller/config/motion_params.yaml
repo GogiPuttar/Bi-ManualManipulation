@@ -19,3 +19,7 @@ default_move_duration: 3.0  # optional default
 
 finger_grasp_speed: 0.2
 finger_release_speed: 0.3
+
+ik_base_link: base_link
+left_ik_tip_link: left_ee
+right_ik_tip_link: right_ee

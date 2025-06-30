@@ -13,6 +13,9 @@ from threading import Lock
 import numpy as np
 import time
 import yaml
+import PyKDL
+from urdf_parser_py.urdf import URDF
+from kdl_parser_py.urdf import treeFromUrdfModel
 
 class LimbState:
     def __init__(self, name, node, motion_params, grasp_params):
@@ -72,13 +75,89 @@ class LimbState:
         for i in range(4):
             self.tactile_contact[i] = bool(msg.contacts[i])
 
-    async def execute_move(self, goal_handle):
+    # def solve_ik(self, pose_stamped):
+    #     """
+    #     Placeholder IK solver. Replace with your actual IK.
+    #     Returns 7 joint angles or None if no solution.
+    #     """
+    #     # Fake constant pose for demonstration
+    #     return np.array([0.1, -0.2, 0.3, -0.4, 0.5, -0.6, 0.7])
+    
+    def solve_ik(self, target_pose: PoseStamped):
+        # 1. Load KDL tree and chain only once
+        if not hasattr(self, 'ik_chain'):
+            robot = URDF.from_parameter_server()  # or from file if needed
+            success, tree = treeFromUrdfModel(robot)
+            if not success:
+                self.node.get_logger().error("Failed to parse URDF into KDL tree.")
+                return None
+
+            base_link = self.motion_params.get('ik_base_link', 'base_link')
+            tip_link = self.motion_params.get(f'{self.name}_ik_tip_link', f'{self.name}_ee')
+
+            self.ik_chain = tree.getChain(base_link, tip_link)
+            self.ik_solver = PyKDL.ChainIkSolverPos_LMA(self.ik_chain)
+
+        # 2. Convert goal pose into PyKDL Frame
+        pos = target_pose.pose.position
+        ori = target_pose.pose.orientation
+        kdl_goal = PyKDL.Frame(
+            PyKDL.Rotation.Quaternion(ori.x, ori.y, ori.z, ori.w),
+            PyKDL.Vector(pos.x, pos.y, pos.z)
+        )
+
+        # 3. Current joint estimate
+        with self.joint_lock:
+            current = self.joint_positions[:7]
+        kdl_seed = PyKDL.JntArray(len(current))
+        for i in range(len(current)):
+            kdl_seed[i] = current[i]
+
+        # 4. IK solve
+        kdl_result = PyKDL.JntArray(self.ik_chain.getNrOfJoints())
+        ret = self.ik_solver.CartToJnt(kdl_seed, kdl_goal, kdl_result)
+
+        if ret >= 0:
+            return np.array([kdl_result[i] for i in range(self.ik_chain.getNrOfJoints())])
+        else:
+            return None
+
+    def execute_move(self, goal_handle):
         self.node.get_logger().info(f'[{self.name}] Executing MoveArmToPose...')
-        # Simulated interpolation for now
-        duration = goal_handle.request.duration or self.motion_params['default_move_duration']
-        for i in range(10):
-            await rclpy.sleep(int(duration * 0.1))
-            goal_handle.publish_feedback(MoveArmToPose.Feedback(progress=(i+1)/10.0))
+        
+        target_pose = goal_handle.request.target_pose
+        duration = goal_handle.request.duration or self.motion_params.get("default_move_duration", 2.0)
+
+        # Step 1: Solve IK
+        target_joints = self.solve_ik(target_pose)
+        if target_joints is None:
+            self.node.get_logger().warn(f'[{self.name}] IK failed.')
+            goal_handle.abort()
+            return MoveArmToPose.Result(success=False)
+
+        # Step 2: Get current joint positions (arm only)
+        with self.joint_lock:
+            current = self.joint_positions[:7].copy()
+
+        update_rate = 50.0
+        dt = 1.0 / update_rate
+        # threshold = 0.01
+
+        # Step 3: Interpolation setup
+        steps = int(duration * update_rate)  # 50 Hz update rate
+        for i in range(steps):
+            alpha = (i + 1) / steps
+            new_joint_pos = (1 - alpha) * current + alpha * target_joints
+
+            with self.joint_lock:
+                self.joint_positions[:7] = new_joint_pos
+
+            # Step 4: Feedback
+            feedback = MoveArmToPose.Feedback(progress=alpha)
+            goal_handle.publish_feedback(feedback)
+
+            time.sleep(dt)
+
         goal_handle.succeed()
         return MoveArmToPose.Result(success=True)
 
