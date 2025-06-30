@@ -23,7 +23,7 @@ handoff_standoff_pose_right:
   qz: 0.0
   qw: 0.7071
 handoff_pose_right:
-  x: 0.1
+  x: 0.09
   y: 0.8
   z: 0.3
   qx: 0.0

@@ -80,7 +80,7 @@ class TaskManager(Node):
         self.object_pose = PoseStamped()
 
     def update_fsm(self):
-        self.get_logger().debug(f"Right state: {self.right_state}, Left state: {self.left_state}") 
+        self.get_logger().info(f"Right state: {self.right_state}, Left state: {self.left_state}") 
         self.get_logger().debug(f"current holder: {self.grasp_state.current_holder}, expected holder: {self.grasp_state.expected_holder}") 
 
         # Optionally log or act on this
@@ -123,7 +123,9 @@ class TaskManager(Node):
                 self.send_move_goal(self.right_move_client, self.get_named_pose('handoff_pose_right'), 0.5)
 
         elif self.right_state == RightArmState.MOVE_TO_HANDOFF:
-            if self.action_done(self.right_move_client) and self.grasp_state.current_holder == "left":
+            self.get_logger().info(f"YOOOO {self.action_done(self.left_grasp_client)}") 
+
+            if self.action_done(self.right_move_client) and self.left_state == LeftArmState.GRASP and self.action_done(self.left_grasp_client):
                 self.right_state = RightArmState.RELEASE
                 self.send_release_goal(self.right_release_client)
 
@@ -135,7 +137,7 @@ class TaskManager(Node):
                 self.send_move_goal(self.right_move_client, self.get_named_pose('watch_pose_right'), 1.0)
 
         elif self.right_state == RightArmState.WATCH:
-            if self.action_done(self.right_release_client):
+            if self.action_done(self.right_release_client) and self.left_state == LeftArmState.WAIT:
                 self.right_state = RightArmState.WAIT
                 self.object_pose = PoseStamped()
 
@@ -158,7 +160,7 @@ class TaskManager(Node):
                 self.send_grasp_goal(self.left_grasp_client)
 
         elif self.left_state == LeftArmState.GRASP:
-            if self.action_done(self.left_grasp_client):
+            if self.action_done(self.left_grasp_client) and self.right_state == RightArmState.WATCH:
                 self.grasp_state.current_holder = "left"
                 self.left_state = LeftArmState.MOVE_TO_BIN
                 self.send_move_goal(self.left_move_client, self.get_named_pose('bin_pose'), 3.0)
