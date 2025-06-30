@@ -105,3 +105,4 @@ kdl.Joint(j.name, kdl.Joint.Fixed)
 
 limitations:
 note: bimanual_sensor currently only uses the right camera. it also needs better params management in launch
+note: left hand given grasp priority duirng handoff in the simulator, couldn't think of justifiable logic for this so defaulted to task-based priority

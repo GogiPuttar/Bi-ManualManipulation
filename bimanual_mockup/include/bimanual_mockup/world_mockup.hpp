@@ -83,7 +83,7 @@ private:
   void publish_state();
 
   // Internal state variables
-  double timestep_ = 0.2;      // seconds
+  double timestep_ = 0.02;      // seconds
   SimObject object_;
   Camera right_cam_, left_cam_;
   double gravity_;
@@ -115,6 +115,11 @@ private:
 
   cv::Mat render_sphere_depth(const SimObject & object, const geometry_msgs::msg::TransformStamped & cam_tf,
                           const std::array<double, 4> & intrinsics, const std::array<int, 2> & resolution);
+  bool check_grasp(const std::string& palm_frame,
+                  const std::vector<std::string>& fingertips,
+                  const std::vector<bool>& contact_flags,
+                  int& num_contacts,
+                  double palm_thresh);
 };
 
 }  // namespace bimanual_mockup
