@@ -76,7 +76,7 @@
   <joint name="left_hand_to_palm" type="fixed">
     <parent link="left_hand_base_link"/>
     <child link="left_palm"/>
-    <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="1.5708 0.0 -1.5708"/>
   </joint>
 
   <!-- Left hand to camera -->

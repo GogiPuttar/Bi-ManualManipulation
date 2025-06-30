@@ -104,7 +104,7 @@ class LimbState:
             tip_link = self.motion_params.get(f'{self.name}_ik_tip_link', f'{self.name}_palm')
 
             self.ik_chain = tree.getChain(base_link, tip_link)
-            self.node.get_logger().info(f"KDL chain has {self.ik_chain.getNrOfJoints()} joints.")
+            self.node.get_logger().debug(f"KDL chain has {self.ik_chain.getNrOfJoints()} joints.")
             self.ik_solver = PyKDL.ChainIkSolverPos_LMA(self.ik_chain)
 
         # 2. Convert goal pose into PyKDL Frame
@@ -150,7 +150,6 @@ class LimbState:
 
         update_rate = 50.0
         dt = 1.0 / update_rate
-        # threshold = 0.01
 
         # Step 3: Interpolation setup
         steps = int(duration * update_rate)  # 50 Hz update rate
