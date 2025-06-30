@@ -16,13 +16,15 @@ import yaml
 import PyKDL
 from urdf_parser_py.urdf import URDF
 from kdl_parser_py.urdf import treeFromUrdfModel
+from lxml import etree
 
 class LimbState:
-    def __init__(self, name, node, motion_params, grasp_params):
+    def __init__(self, name, node, motion_params, grasp_params, robot_description):
         self.name = name  # 'left' or 'right'
         self.node = node
         self.motion_params = motion_params
         self.grasp_params = grasp_params
+        self.robot_description = robot_description
         self.tactile_contact = [False, False, False, False]  # index, middle, pinky, thumb
 
         # Track joint positions
@@ -75,27 +77,34 @@ class LimbState:
         for i in range(4):
             self.tactile_contact[i] = bool(msg.contacts[i])
 
-    # def solve_ik(self, pose_stamped):
-    #     """
-    #     Placeholder IK solver. Replace with your actual IK.
-    #     Returns 7 joint angles or None if no solution.
-    #     """
-    #     # Fake constant pose for demonstration
-    #     return np.array([0.1, -0.2, 0.3, -0.4, 0.5, -0.6, 0.7])
+    def remove_unsupported_tags(self, urdf_string):
+        root = etree.fromstring(urdf_string.encode())
+        for tag in root.xpath('//origin_xyz | //ros2_control'):
+            tag.getparent().remove(tag)
+        return etree.tostring(root).decode()
     
     def solve_ik(self, target_pose: PoseStamped):
+
         # 1. Load KDL tree and chain only once
         if not hasattr(self, 'ik_chain'):
-            robot = URDF.from_parameter_server()  # or from file if needed
+
+            # Clean URDF
+            cleaned_urdf = self.remove_unsupported_tags(self.robot_description)
+
+            self.node.get_logger().warn(f'{cleaned_urdf}')
+
+            robot = URDF.from_xml_string(cleaned_urdf)
+
             success, tree = treeFromUrdfModel(robot)
             if not success:
                 self.node.get_logger().error("Failed to parse URDF into KDL tree.")
                 return None
 
-            base_link = self.motion_params.get('ik_base_link', 'base_link')
-            tip_link = self.motion_params.get(f'{self.name}_ik_tip_link', f'{self.name}_ee')
+            base_link = self.motion_params.get('ik_base_link', 'world')
+            tip_link = self.motion_params.get(f'{self.name}_ik_tip_link', f'{self.name}_palm')
 
             self.ik_chain = tree.getChain(base_link, tip_link)
+            self.node.get_logger().info(f"KDL chain has {self.ik_chain.getNrOfJoints()} joints.")
             self.ik_solver = PyKDL.ChainIkSolverPos_LMA(self.ik_chain)
 
         # 2. Convert goal pose into PyKDL Frame
@@ -292,11 +301,13 @@ class LimbsMockupNode(Node):
             parameters=[
                 ('motion_params_file', ''),
                 ('grasp_params_file', ''),
+                ('robot_description', ''),
             ]
         )
 
         motion_path = self.get_parameter('motion_params_file').get_parameter_value().string_value
         grasp_path = self.get_parameter('grasp_params_file').get_parameter_value().string_value
+        self.robot_description = self.get_parameter('robot_description').get_parameter_value().string_value
 
         self.motion_params = self.load_yaml(motion_path)
         self.grasp_params = self.load_yaml(grasp_path)
@@ -305,8 +316,8 @@ class LimbsMockupNode(Node):
         self.joint_pub = self.create_publisher(JointState, 'joint_states', 10)
 
         # Each limb handles its own actions
-        self.left = LimbState('left', self, self.motion_params, self.grasp_params)
-        self.right = LimbState('right', self, self.motion_params, self.grasp_params)
+        self.left = LimbState('left', self, self.motion_params, self.grasp_params, self.robot_description)
+        self.right = LimbState('right', self, self.motion_params, self.grasp_params, self.robot_description)
 
         # Timer to publish joint states
         self.create_timer(0.02, self.publish_joint_states)  # 50Hz

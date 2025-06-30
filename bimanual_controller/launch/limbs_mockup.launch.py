@@ -50,6 +50,7 @@ def generate_launch_description():
         parameters=[{
             'grasp_params_file': os.path.join(config_dir, 'grasp_params.yaml'),
             'motion_params_file': os.path.join(config_dir, 'motion_params.yaml'),
+            **system_robot_description,
             }]
     )
 
