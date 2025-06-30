@@ -165,7 +165,51 @@ void WorldMockup::publish_state()
 
   object_marker_pub_->publish(marker);
 
-  // TODO: Check fingertip distances and update tactile signals
+  // Check fingertip distances and update tactile signals
+  double contact_thresh = object_.radius + 0.015;  // 1.5cm beyond object surface
+
+  bimanual_msgs::msg::Tactile left_msg, right_msg;
+  left_msg.contacts.resize(4, false);
+  right_msg.contacts.resize(4, false);
+  RCLCPP_INFO(get_logger(), "YOOOO");
+
+  for (int i = 0; i < 4; ++i) {
+    try {
+      auto tf = tf_buffer_->lookupTransform(left_fingertips[i], "object", tf2::TimePointZero);
+      double dx = tf.transform.translation.x;
+      double dy = tf.transform.translation.y;
+      double dz = tf.transform.translation.z;
+      double dist = std::sqrt(dx*dx + dy*dy + dz*dz);
+      if (dist < contact_thresh)
+        left_msg.contacts[i] = true;
+    } catch (const tf2::TransformException & ex) {
+      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
+        "Left finger %d TF lookup failed: %s", i, ex.what());
+    }
+
+    try {
+      RCLCPP_INFO(get_logger(), "right_fingertips size: %ld", right_fingertips.size());
+      RCLCPP_INFO(get_logger(), "Frame name: %s", right_fingertips[i].c_str());
+
+      auto tf = tf_buffer_->lookupTransform(right_fingertips[i], "object", tf2::TimePointZero);
+      double dx = tf.transform.translation.x;
+      double dy = tf.transform.translation.y;
+      double dz = tf.transform.translation.z;
+      RCLCPP_INFO(get_logger(), "HI %d", i);
+
+      double dist = std::sqrt(dx*dx + dy*dy + dz*dz);
+      RCLCPP_INFO(get_logger(), "dist: %f", dist);
+      
+      if (dist < contact_thresh)
+        right_msg.contacts[i] = true;
+    } catch (const tf2::TransformException & ex) {
+      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000,
+        "Right finger %d TF lookup failed: %s", i, ex.what());
+    }
+  }
+
+  left_tactile_pub_->publish(left_msg);
+  right_tactile_pub_->publish(right_msg);
 
   // Get transform from object to camera 
   try {

@@ -90,6 +90,12 @@ private:
   double table_height_;
   std::string grasp_state_{"none"};   // "none", "left", "right"
   geometry_msgs::msg::Pose initial_pose_;
+  const std::vector<std::string> left_fingertips = {
+    "left_index_fingertip", "left_middle_fingertip", "left_pinky_fingertip", "left_thumb_fingertip"
+  };
+  const std::vector<std::string> right_fingertips = {
+    "right_index_fingertip", "right_middle_fingertip", "right_pinky_fingertip", "right_thumb_fingertip"
+  };
 
   // Camera/tactile publishers
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr left_color_pub_, right_color_pub_;
