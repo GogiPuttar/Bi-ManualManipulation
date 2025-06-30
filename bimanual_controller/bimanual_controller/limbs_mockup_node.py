@@ -4,6 +4,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Header
+from bimanual_msgs.msg import Tactile
 from bimanual_msgs.action import MoveArmToPose, GraspUntilContact, ReleaseGrasp
 from geometry_msgs.msg import PoseStamped
 from rclpy.action import ActionServer
@@ -19,6 +20,7 @@ class LimbState:
         self.node = node
         self.motion_params = motion_params
         self.grasp_params = grasp_params
+        self.tactile_contact = [False, False, False, False]  # index, middle, pinky, thumb
 
         # Track joint positions
         self.joint_names = [f'{name}_joint_{i+1}' for i in range(7)] + \
@@ -33,7 +35,7 @@ class LimbState:
 
         # Tactile subscription
         node.create_subscription(
-            JointState,
+            Tactile,
             f'/{name}/tactile',
             self.tactile_callback,
             10
@@ -65,9 +67,10 @@ class LimbState:
         else:
             self.node.get_logger().warn(f'[{self.name}] Home position not defined or malformed.')
 
-    def tactile_callback(self, msg: JointState):
-        # Simulate tactile processing if needed
-        pass
+    def tactile_callback(self, msg: Tactile):
+        # Expecting msg.name: [..., left_index_contact, ..., left_middle_contact, ...]
+        for i in range(len(msg.contacts)):
+            self.tactile_contact[i] = bool(msg.contacts[i])
 
     async def execute_move(self, goal_handle):
         self.node.get_logger().info(f'[{self.name}] Executing MoveArmToPose...')
@@ -79,11 +82,76 @@ class LimbState:
         goal_handle.succeed()
         return MoveArmToPose.Result(success=True)
 
-    async def execute_grasp(self, goal_handle):
+    def execute_grasp(self, goal_handle):
         self.node.get_logger().info(f'[{self.name}] Executing GraspUntilContact...')
-        await rclpy.sleep(1.0)
+        target_fingers = goal_handle.request.target_closure or [1.0] * 4
+
+        # Compute the 16-joint target using grasp_position
+        target = np.zeros(16)
+        target[0:4] = target_fingers[0] * self.grasp_position[0:4]
+        target[4:8] = target_fingers[1] * self.grasp_position[4:8]
+        target[8:12] = target_fingers[2] * self.grasp_position[8:12]
+        target[12:16] = target_fingers[3] * self.grasp_position[12:16]
+        target = np.clip(target, 0.0, 1.0)
+
+        # Tactile contact flags: [index, middle, pinky, thumb]
+        contact = [False, False, False, False]
+
+        update_rate = 50.0
+        dt = 1.0 / update_rate
+        threshold = 0.01
+
+        while not all(contact):
+            with self.joint_lock:
+                current = self.joint_positions[7:23].copy()
+
+            error = target - current
+            delta = np.zeros(16)
+
+            # Update each finger independently
+            for i, contacted in enumerate(contact):
+                if contacted:
+                    continue  # freeze this finger
+
+                finger_start = i * 4
+                finger_end = finger_start + 4
+                finger_error = error[finger_start:finger_end]
+
+                # If already close enough, mark as contacted (even without tactile)
+                if np.linalg.norm(finger_error) < threshold:
+                    contact[i] = True
+                    continue
+
+                # If tactile contact exists for this finger
+                if self.tactile_contact[i]:
+                    contact[i] = True
+                    continue
+
+                # Otherwise, update movement for this finger
+                delta[finger_start:finger_end] = np.clip(
+                    finger_error,
+                    -self.finger_grasp_speed * dt,
+                    self.finger_grasp_speed * dt
+                )
+
+            new_pos = current + delta
+
+            with self.joint_lock:
+                self.joint_positions[7:23] = new_pos
+
+            # Publish feedback
+            feedback = GraspUntilContact.Feedback()
+            feedback.contact = contact
+            feedback.current_closure = self.joint_positions[7:23].tolist()
+            goal_handle.publish_feedback(feedback)
+
+            time.sleep(dt)
+
         goal_handle.succeed()
-        return GraspUntilContact.Result(success=True, final_closure=[1.0]*4)
+        return GraspUntilContact.Result(
+            success=True,
+            final_closure=self.joint_positions[7:23].tolist()
+        )
 
     def execute_release(self, goal_handle):
         self.node.get_logger().info(f'[{self.name}] Executing ReleaseGrasp...')

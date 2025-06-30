@@ -1,1 +1,1 @@
-bool[] contacts    # one per fingertip (length 5 usually)
+bool[] contacts    # one per fingertip (length 4 usually)
