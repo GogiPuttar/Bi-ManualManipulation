@@ -2,6 +2,11 @@
 
 # Overview
 
+## Usage
+```
+ros2 launch bimanual_planner task_manager.launch.py
+```
+
 # System Design
 
 ![alt text](<bimanual.drawio (1).png>)
@@ -76,6 +81,14 @@ The sequence of actions is:
   - GRASP object
   - Go to dump the object into the BIN, triggered by right hand successfully releasing the object
   - WAIT
+
+Node `task_manager.py` uses `plan_params.yaml`.
+
+```
+ros2 launch bimanual_planner task_manager.launch.py use_rviz:=true
+```
+
+
 
 <br>
 
