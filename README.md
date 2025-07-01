@@ -4,6 +4,8 @@
 
 # System Design
 
+![alt text](<bimanual.drawio (1).png>)
+
 # Packages
 
 ## `bimanual_mockup` package
