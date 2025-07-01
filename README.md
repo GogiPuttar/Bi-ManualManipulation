@@ -6,6 +6,8 @@
 
 ![alt text](<bimanual.drawio (1).png>)
 
+<br>
+
 # Packages
 
 ## `bimanual_mockup` package
@@ -31,6 +33,8 @@ ros2 launch bimanual_sensor object_sensor.launch.py camera_placeholder:=true use
 
 ![alt text](bm_object.png)
 
+<br>
+
 ## `bimanual_controller` package
 Simulates motion control (task-space and joint-space) commands for the 4-finger (5-DoF) Allegro Hands and 7-DoF Kinova Arms, set up together as a symmetric bi-manual system with wrist mounted cameras.
 Also launches the `robot_state_publisher` and houses the bi-manual system's xacro file.
@@ -47,9 +51,37 @@ ros2 launch bimanual_controller limbs_mockup.launch.py use_rviz:=true
 ```
 https://github.com/user-attachments/assets/bf7a84b6-1420-491f-9eb0-f3434e344371
 
+<br>
+
 ## `bimanual_planner` package
 
+Moves the arms parallely to accomplish the task of picking up a ball form the table with the right hand, and then handing it off to the left hand to be dropped into a bin.
+
+The sequence of actions is:
+- Right arm
+  - WAIT, until an object is sensed
+  - Go to STANDOFF above the object
+  - Go to GRASP POSE relative to the object
+  - GRASP the object
+  - Carry the object to the RIGHT STANDOFF of the HANDOFF pose
+  - Carry the object to the RIGHT HANDOFF pose
+  - RELEASE the object, triggered by left hand successfully GRASPing it
+  - Go to a good pose to WATCH for objects
+  - Start WAITing to find an obejct again, triggered by left hand successfully RELEASING the object into the bin
+  
+- Left arm
+  - WAIT, until right arm GRASPs an object
+  - Go to the LEFT STANDOFF of the HANDOFF pose
+  - Go to LEFT HANDOFF pose, triggered by RIGHT arm reaching HANDOFF pose
+  - GRASP object
+  - Go to dump the object into the BIN, triggered by right hand successfully releasing the object
+  - WAIT
+
+<br>
+
 ## `bimanual_msgs` package
+
+<br>
 
 # Setup and Instructions
 
