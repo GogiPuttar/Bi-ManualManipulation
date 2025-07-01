@@ -3,10 +3,15 @@
 # Overview
 
 The goal of this project was to sketch a ROS 2 pipeline for Bi-Manual Manipulation, particularly the task of hand-to-hand transfer of an object.
-Here, two 7-DoF Kinova Arms symmetrically attached to two left and right-handed 16-DoF Allegro Hands, with depth wrist mounted depth cameras (complete with simulated camera intrinsics) pick up a ball, hand it off to the other hand, and then drop it in a fixed "bin".
+
+Here, two 7-DoF Kinova Arms symmetrically attached to two left and right-handed 16-DoF Allegro Hands, with wrist mounted depth cameras (complete with simulated camera intrinsics) pick up a ball, hand it off to the other hand, and then drop it in a fixed "bin".
 The left and right limbs (arm + hand systems) function independently.
+
 16-DoF (4-fingered) Allegro Hands are abstracted to be 5-DoF systems (4 finger curling + thumb abduction), where the closure is interpolated between fully extended and fully flexed states for each finger.
 7-DoF arms can travel to arbitrary *SE(3)* poses in the workspace using final-pose IK (via KDL) and joint-space inteprolation.
+
+An action called "grasp_until_contact" independently curls every finger until their respective binary tactile fingertips register a touch.
+
 The CV pipeline creates a simple HSV mask to locate the object relative to the camera, which when coupled with the TF tree, gives the object pose in the world frame.
 
 ## Usage
