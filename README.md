@@ -267,16 +267,3 @@ Leads to the possibility of modular Task-Defining Configs, if managed properly.
 # Use of AI Tools
 ChatGPT was used in this project for creating protoype scripts, and Doxygen formatting in `world_mockup.hpp`.
 
-side
-https://github.com/user-attachments/assets/e9db8ec5-ab15-402c-b95b-d46f3bd75851
-
-front
-https://github.com/user-attachments/assets/e010c9ab-8f5f-493a-a890-85126b13ac96
-
-topfront
-https://github.com/user-attachments/assets/84ca44f5-4265-426b-a53f-60167f12d50e
-
-grasp
-https://github.com/user-attachments/assets/7d593644-72a3-4f06-a365-11dd326f88a1
-
-
