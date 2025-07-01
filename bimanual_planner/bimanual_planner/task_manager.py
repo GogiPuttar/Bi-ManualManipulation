@@ -67,8 +67,8 @@ class TaskManager(Node):
         self.left_state = LeftArmState.WAIT
 
         self.grasp_state = GraspState()
-        self.grasp_state.current_holder = "none"
-        self.grasp_state.expected_holder = "none"
+        self.grasp_state.current_holder = "world"
+        self.grasp_state.expected_holder = "world"
 
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
@@ -80,7 +80,7 @@ class TaskManager(Node):
         self.object_pose = PoseStamped()
 
     def update_fsm(self):
-        self.get_logger().info(f"Right state: {self.right_state}, Left state: {self.left_state}") 
+        self.get_logger().debug(f"Right state: {self.right_state}, Left state: {self.left_state}") 
         self.get_logger().debug(f"current holder: {self.grasp_state.current_holder}, expected holder: {self.grasp_state.expected_holder}") 
 
         # Optionally log or act on this
@@ -123,8 +123,6 @@ class TaskManager(Node):
                 self.send_move_goal(self.right_move_client, self.get_named_pose('handoff_pose_right'), 0.5)
 
         elif self.right_state == RightArmState.MOVE_TO_HANDOFF:
-            self.get_logger().info(f"YOOOO {self.action_done(self.left_grasp_client)}") 
-
             if self.action_done(self.right_move_client) and self.left_state == LeftArmState.GRASP and self.action_done(self.left_grasp_client):
                 self.right_state = RightArmState.RELEASE
                 self.send_release_goal(self.right_release_client)
@@ -133,7 +131,7 @@ class TaskManager(Node):
             if self.action_done(self.right_release_client):
                 self.grasp_state.current_holder = "left"
                 self.right_state = RightArmState.WATCH
-                self.grasp_state.expected_holder = "none"
+                self.grasp_state.expected_holder = "world"
                 self.send_move_goal(self.right_move_client, self.get_named_pose('watch_pose_right'), 1.0)
 
         elif self.right_state == RightArmState.WATCH:
@@ -174,7 +172,7 @@ class TaskManager(Node):
             if self.action_done(self.left_release_client):
                 self.grasp_state.current_holder = "world"
                 self.left_state = LeftArmState.WAIT
-                self.grasp_state.expected_holder = "none"
+                self.grasp_state.expected_holder = "world"
 
         self.publish_grasp_state()
 
@@ -300,7 +298,7 @@ class TaskManager(Node):
     def get_object_pose(self):
         try:
             tf = self.tf_buffer.lookup_transform(
-                "world", "object", rclpy.time.Time())
+                "world", "object_sensed", rclpy.time.Time())
             
             pose = PoseStamped()
             pose.header = tf.header
