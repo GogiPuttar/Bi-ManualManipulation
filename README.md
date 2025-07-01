@@ -233,11 +233,21 @@ https://github.com/user-attachments/assets/813e9d8b-a3d6-445e-94a9-98527c70c8f0
 - Left hand given grasp priority duirng handoff in the simulator. Couldn't think of justifiable logic for this so defaulted to task-based priority.
 
 # Short Term Improvements
+- Integration with Isaac Sim instead of a custom mock up. Work in Progress ([branch](https://github.com/GogiPuttar/Bi-ManualManipulation/tree/setup/isaac_sim)).
 - Separate package called `bimanual_configs` for managing all sorts of config files for params. 
 Leads to the possibility of modular Task-Defining Configs, if managed properly.
 - Unit Testing and Integration Testing of tasks using [`catch_ros2`](https://github.com/ngmor/catch_ros2)
 - Pep257 and Flake8 compatible documentation for Python, passing all tests
 - Doxygen compatible documentation for C++.
+
+# Possible Avenues for Machine Learning
+- Params files offer convenient representation of heuristics/tuned parameters which could benefit from a variety of learning based methods; resulting in improved grasping, image localization, sensor fusion, mid to high-level motion planning etc.
+- Multi-Agent RL treating arms as two separate agents, achieving a combined goal.
+- Object detection and pose estimation can be generalized to a larger variety of objects using supervised learning methods
+- It is important to note that ROS 2 is a less than ideal training pipeline for RL and other such methods, given it's poor scaling to faster-than-real-time simualtion.
+
+# Use of AI Tools
+ChatGPT was used in this project for creating protoype scripts, and Doxygen formatting in `world_mockup.hpp`.
 
 side
 https://github.com/user-attachments/assets/e9db8ec5-ab15-402c-b95b-d46f3bd75851
