@@ -14,6 +14,9 @@ An action called "grasp_until_contact" independently curls every finger until th
 
 The CV pipeline creates a simple HSV mask to locate the object relative to the camera, which when coupled with the TF tree, gives the object pose in the world frame.
 
+Architecture is heavily built on config files to have minimal code exposure, to make things more modular. 
+Possibly in the futur, this opens up the possibility of FULLY specifying any task using just a YAML config.
+
 ## Usage
 ```
 ros2 launch bimanual_planner task_manager.launch.py
