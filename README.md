@@ -88,7 +88,7 @@ Node `task_manager.py` uses `plan_params.yaml`.
 ros2 launch bimanual_planner task_manager.launch.py use_rviz:=true
 ```
 
-
+https://github.com/user-attachments/assets/813e9d8b-a3d6-445e-94a9-98527c70c8f0
 
 <br>
 
@@ -229,10 +229,15 @@ ros2 launch bimanual_planner task_manager.launch.py use_rviz:=true
   ```
 
 # Limitations
-note: bimanual_sensor currently only uses the right camera. it also needs better params management in launch
-note: left hand given grasp priority duirng handoff in the simulator, couldn't think of justifiable logic for this so defaulted to task-based priority
+- `bimanual_sensor` currently only uses the right camera.
+- Left hand given grasp priority duirng handoff in the simulator. Couldn't think of justifiable logic for this so defaulted to task-based priority.
 
 # Short Term Improvements
+- Separate package called `bimanual_configs` for managing all sorts of config files for params. 
+Leads to the possibility of modular Task-Defining Configs, if managed properly.
+- Unit Testing and Integration Testing of tasks using [`catch_ros2`](https://github.com/ngmor/catch_ros2)
+- Pep257 and Flake8 compatible documentation for Python, passing all tests
+- Doxygen compatible documentation for C++.
 
 side
 https://github.com/user-attachments/assets/e9db8ec5-ab15-402c-b95b-d46f3bd75851
