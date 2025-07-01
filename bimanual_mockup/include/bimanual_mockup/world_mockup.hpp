@@ -8,6 +8,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
+#include <geometry_msgs/msg/point.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 #include <yaml-cpp/yaml.h>
 #include "bimanual_msgs/msg/tactile.hpp"
@@ -110,16 +111,24 @@ private:
 
   rclcpp::TimerBase::SharedPtr timer_;
 
+  // Respawn parameters
+  geometry_msgs::msg::Point bin_center_;
+  double bin_radius_ = 0.1;  // meters
+
+  geometry_msgs::msg::Point right_spawn_center_;
+  double spawn_window_xy_ = 0.1;  // +-10cm around the center
+  double spawn_height_ = 0.5;     // fixed z height
+
   cv::Mat render_sphere_color(const SimObject & object, const geometry_msgs::msg::TransformStamped & cam_tf,
                           const std::array<double, 4> & intrinsics, const std::array<int, 2> & resolution);
 
   cv::Mat render_sphere_depth(const SimObject & object, const geometry_msgs::msg::TransformStamped & cam_tf,
                           const std::array<double, 4> & intrinsics, const std::array<int, 2> & resolution);
   bool check_grasp(const std::string& palm_frame,
-                  const std::vector<std::string>& fingertips,
                   const std::vector<bool>& contact_flags,
                   int& num_contacts,
                   double palm_thresh);
+  void respawn_object_near_right_hand();
 };
 
 }  // namespace bimanual_mockup

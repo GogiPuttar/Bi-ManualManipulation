@@ -64,6 +64,16 @@ WorldMockup::WorldMockup(const rclcpp::NodeOptions & options)
   object_.tf.child_frame_id = "object";
   tf_broadcaster_->sendTransform(object_.tf);
 
+  // Respawn parameters
+  // bin at (0.0, 0.6, table_height)
+  bin_center_.x = -0.6;
+  bin_center_.y = 0.2;
+  bin_center_.z = table_height_ + object_.radius;
+
+  // Respawn near right hand (~shoulder level)
+  right_spawn_center_.x = 0.3;
+  right_spawn_center_.y = 0.6;
+
   RCLCPP_INFO(get_logger(), "WorldMockup node started.");
 }
 
@@ -168,8 +178,8 @@ void WorldMockup::publish_state()
 
   // Step 1: Check grasp logic
   int left_contacts = 0, right_contacts = 0;
-  bool left_grasped = check_grasp("left_palm", left_fingertips, left_msg.contacts, left_contacts, palm_thresh);
-  bool right_grasped = check_grasp("right_palm", right_fingertips, right_msg.contacts, right_contacts, palm_thresh);
+  bool left_grasped = check_grasp("left_palm", left_msg.contacts, left_contacts, palm_thresh);
+  bool right_grasped = check_grasp("right_palm", right_msg.contacts, right_contacts, palm_thresh);
 
   if (left_grasped && grasp_state_ != "left") {
     // Just grabbed by left hand
@@ -244,9 +254,6 @@ void WorldMockup::publish_state()
   marker.id = 0;
   marker.type = visualization_msgs::msg::Marker::SPHERE;
   marker.action = visualization_msgs::msg::Marker::ADD;
-  // marker.pose.position.x = object_.tf.transform.translation.x;
-  // marker.pose.position.y = object_.tf.transform.translation.y;
-  // marker.pose.position.z = object_.tf.transform.translation.z;
   marker.pose.orientation.w = 1.0;  // no rotation
   marker.scale.x = object_.radius * 2.0;
   marker.scale.y = object_.radius * 2.0;
@@ -299,6 +306,19 @@ void WorldMockup::publish_state()
   left_depth_pub_->publish(*left_depth_msg);
   right_color_pub_->publish(*right_color_msg);
   right_depth_pub_->publish(*right_depth_msg);
+
+  // Respawn checker
+  if (grasp_state_ == "none") {
+    // Check if object is in bin
+    double dx = object_.tf.transform.translation.x - bin_center_.x;
+    double dy = object_.tf.transform.translation.y - bin_center_.y;
+    double dz = object_.tf.transform.translation.z - bin_center_.z;
+
+    double dist_xy = std::sqrt(dx * dx + dy * dy);
+    if (dist_xy < bin_radius_ && std::abs(dz) < 0.05) {
+      respawn_object_near_right_hand();
+    }
+  }
 }
 
 cv::Mat WorldMockup::render_sphere_color(const SimObject & obj,
@@ -360,7 +380,6 @@ cv::Mat WorldMockup::render_sphere_depth(const SimObject & obj,
 }
 
 bool WorldMockup::check_grasp(const std::string& palm_frame,
-                              const std::vector<std::string>& fingertips,
                               const std::vector<bool>& contact_flags,
                               int& num_contacts,
                               double palm_thresh)
@@ -385,6 +404,28 @@ bool WorldMockup::check_grasp(const std::string& palm_frame,
   }
 }
 
+void WorldMockup::respawn_object_near_right_hand()
+{
+  double dx = (static_cast<double>(rand()) / RAND_MAX - 0.5) * 2.0 * spawn_window_xy_;
+  double dy = (static_cast<double>(rand()) / RAND_MAX - 0.5) * 2.0 * spawn_window_xy_;
+
+  object_.tf.header.frame_id = "world";
+  object_.tf.transform.translation.x = right_spawn_center_.x + dx;
+  object_.tf.transform.translation.y = right_spawn_center_.y + dy;
+  object_.tf.transform.translation.z = spawn_height_;
+  object_.tf.transform.rotation.x = 0.0;
+  object_.tf.transform.rotation.y = 0.0;
+  object_.tf.transform.rotation.z = 0.0;
+  object_.tf.transform.rotation.w = 1.0;
+
+  object_.velocity_z = 0.0;
+  grasp_state_ = "none";
+
+  RCLCPP_INFO(get_logger(), "Object respawned at (%.2f, %.2f, %.2f)",
+              object_.tf.transform.translation.x,
+              object_.tf.transform.translation.y,
+              object_.tf.transform.translation.z);
+}
 
 /// @brief Main entry point for the world_mockup node
 int main(int argc, char ** argv)

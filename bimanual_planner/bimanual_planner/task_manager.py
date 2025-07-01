@@ -146,7 +146,7 @@ class TaskManager(Node):
                 self.grasp_state.expected_holder = "left"
                 self.send_move_goal(self.left_move_client, self.get_named_pose('handoff_standoff_pose_left'), 2.0)
 
-        if self.left_state == LeftArmState.MOVE_TO_HANDOFF_STANDOFF:
+        elif self.left_state == LeftArmState.MOVE_TO_HANDOFF_STANDOFF:
             if self.grasp_state.current_holder == "right" and self.action_done(self.left_move_client):
                 self.left_state = LeftArmState.MOVE_TO_HANDOFF
                 self.grasp_state.expected_holder = "left"
