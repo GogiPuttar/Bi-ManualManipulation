@@ -1,0 +1,12 @@
+# Goal
+float32[] target_closure   # Optional: desired finger closure (0 to 1 for each)
+
+---
+# Result
+bool success
+float32[] final_closure    # Final curl position of each finger (0–1)
+
+---
+# Feedback
+bool[] contact             # One bool per finger
+float32[] current_closure

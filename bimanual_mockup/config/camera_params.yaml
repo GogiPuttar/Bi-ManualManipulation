@@ -1,0 +1,35 @@
+left_camera:
+  color_intrinsics:
+    fx: 525.0
+    fy: 525.0
+    cx: 319.5
+    cy: 239.5
+  color_resolution:
+    width: 640
+    height: 480
+  depth_intrinsics:
+    fx: 525.0
+    fy: 525.0
+    cx: 319.5
+    cy: 239.5
+  depth_resolution:
+    width: 640
+    height: 480
+
+right_camera:
+  color_intrinsics:
+    fx: 525.0
+    fy: 525.0
+    cx: 319.5
+    cy: 239.5
+  color_resolution:
+    width: 640
+    height: 480
+  depth_intrinsics:
+    fx: 525.0
+    fy: 525.0
+    cx: 319.5
+    cy: 239.5
+  depth_resolution:
+    width: 640
+    height: 480

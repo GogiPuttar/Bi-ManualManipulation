@@ -1,0 +1,172 @@
+<?xml version="1.0"?>
+<robot name="bimanual_system" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Base world link -->
+  <link name="world"/>
+
+  <!-- Left offset link -->
+  <link name="left_offset_link"/>
+  <joint name="world_to_left_offset" type="fixed">
+    <parent link="world"/>
+    <child link="left_offset_link"/>
+    <origin xyz="-0.15 0.0 0.0" rpy="0.2618 0 -1.5708"/> <!-- -90 deg Z +15 deg X -->
+  </joint>
+
+  <!-- Right offset link -->
+  <link name="right_offset_link"/>
+  <joint name="world_to_right_offset" type="fixed">
+    <parent link="world"/>
+    <child link="right_offset_link"/>
+    <origin xyz="0.15 0.0 0.0" rpy="0.2618 0 1.5708"/> <!-- +90 deg Z +15 deg X -->
+  </joint>
+
+  <!-- Load Kinova Gen3 arm macro -->
+  <xacro:include filename="$(find kortex_description)/arms/gen3/7dof/urdf/gen3_macro.xacro"/>
+
+  <!-- Load Allegro macros -->
+  <xacro:include filename="$(find allegro_hand_description)/urdf/leftAllegroHand.urdf.xacro"/>
+  <xacro:include filename="$(find allegro_hand_description)/urdf/rightAllegroHand.urdf.xacro"/>
+
+  <!-- Left Arm -->
+  <xacro:load_arm
+    parent="left_offset_link"
+    dof="7"
+    vision="false"
+    prefix="left_"
+    robot_ip="0.0.0.0"
+    gripper_joint_name="left_gripper_joint"
+    use_fake_hardware="true">
+    <origin_xyz>0 0 0</origin_xyz>
+  </xacro:load_arm>
+
+  <!-- Left Allegro -->
+  <xacro:left_allegro_hand
+    link_prefix="left_hand_"
+    joint_prefix="left_"
+    tip="default"
+    parent="left_end_effector_link">
+    <origin xyz="0 0 0.1" rpy="0 0 3.14159"/>
+  </xacro:left_allegro_hand>
+
+  <!-- Right Arm -->
+  <xacro:load_arm
+    parent="right_offset_link"
+    dof="7"
+    vision="false"
+    prefix="right_"
+    robot_ip="0.0.0.0"
+    gripper_joint_name="right_gripper_joint"
+    use_fake_hardware="true">
+    <origin_xyz>0 0 0</origin_xyz>
+  </xacro:load_arm>
+
+  <!-- Right Allegro -->
+  <xacro:right_allegro_hand
+    link_prefix="right_hand_"
+    joint_prefix="right_"
+    tip="default"
+    parent="right_end_effector_link">
+    <origin xyz="0 0 0.1" rpy="0 0 0"/>
+  </xacro:right_allegro_hand>
+
+  <!-- Additional Fixed TFs for Cameras and Fingertips -->
+
+  <!-- Left hand to palm -->
+  <link name="left_palm"/>
+  <joint name="left_hand_to_palm" type="fixed">
+    <parent link="left_hand_base_link"/>
+    <child link="left_palm"/>
+    <origin xyz="0 0 0" rpy="1.5708 0.0 -1.5708"/>
+  </joint>
+
+  <!-- Left hand to camera -->
+  <link name="left_camera"/>
+  <joint name="left_hand_to_camera" type="fixed">
+    <parent link="left_hand_base_link"/>
+    <child link="left_camera"/>
+    <origin xyz="0.04 0.0 -0.11" rpy="-1.5708 0 -1.5708"/>
+  </joint>
+
+  <!-- Left index fingertip -->
+  <link name="left_index_fingertip"/>
+  <joint name="left_index_to_fingertip" type="fixed">
+    <parent link="left_hand_link_3_0_tip"/>
+    <child link="left_index_fingertip"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Left middle fingertip -->
+  <link name="left_middle_fingertip"/>
+  <joint name="left_middle_to_fingertip" type="fixed">
+    <parent link="left_hand_link_7_0_tip"/>
+    <child link="left_middle_fingertip"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Left pinky fingertip -->
+  <link name="left_pinky_fingertip"/>
+  <joint name="left_pinky_to_fingertip" type="fixed">
+    <parent link="left_hand_link_11_0_tip"/>
+    <child link="left_pinky_fingertip"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Left thumb fingertip -->
+  <link name="left_thumb_fingertip"/>
+  <joint name="left_thumb_to_fingertip" type="fixed">
+    <parent link="left_hand_link_15_0_tip"/>
+    <child link="left_thumb_fingertip"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Similarly for right hand -->
+
+  <!-- Right hand to palm -->
+  <link name="right_palm"/>
+  <joint name="right_hand_to_palm" type="fixed">
+    <parent link="right_hand_base_link"/>
+    <child link="right_palm"/>
+    <origin xyz="0 0 0" rpy="1.5708 0.0 -1.5708"/>
+  </joint>
+
+  <!-- Right hand to camera -->
+  <link name="right_camera"/>
+  <joint name="right_hand_to_camera" type="fixed">
+    <parent link="right_hand_base_link"/>
+    <child link="right_camera"/>
+    <origin xyz="0.04 0.0 -0.11" rpy="-1.5708 0 -1.5708"/>
+  </joint>
+
+  <!-- Right index fingertip -->
+  <link name="right_index_fingertip"/>
+  <joint name="right_index_to_fingertip" type="fixed">
+    <parent link="right_hand_link_3_0_tip"/>
+    <child link="right_index_fingertip"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Right middle fingertip -->
+  <link name="right_middle_fingertip"/>
+  <joint name="right_middle_to_fingertip" type="fixed">
+    <parent link="right_hand_link_7_0_tip"/>
+    <child link="right_middle_fingertip"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Right pinky fingertip -->
+  <link name="right_pinky_fingertip"/>
+  <joint name="right_pinky_to_fingertip" type="fixed">
+    <parent link="right_hand_link_11_0_tip"/>
+    <child link="right_pinky_fingertip"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Right thumb fingertip -->
+  <link name="right_thumb_fingertip"/>
+  <joint name="right_thumb_to_fingertip" type="fixed">
+    <parent link="right_hand_link_15_0_tip"/>
+    <child link="right_thumb_fingertip"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+</robot>

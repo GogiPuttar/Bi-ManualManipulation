@@ -1,0 +1,1 @@
+bool[] contacts    # one per fingertip (length 4 usually)
