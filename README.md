@@ -9,10 +9,43 @@
 # Packages
 
 ## `bimanual_mockup` package
+Simulates **camera physics**, **contact physics**, and **gravity**.
+Acts as a cold-swappable mock-up of an actual physics engine based simulator.
+Respawns object randomly within a window when object is placed in the bin.
+
+Node `world_mockup.cpp` uses `camera_params.yaml`, `object_params.yaml`, and `world_params.yaml`.
+
+```
+ros2 launch bimanual_mockup world_mockup.launch.py camera_placeholder:=true use_rviz:=true
+```
+`camera_placeholder` places dummy TFs for testing camera physics when robot is not loaded.
 
 ## `bimanual_sensor` package
+Uses computer vision to find the absolute position of the ball-like object, by making an HSV mask.
+
+Node `object_sensor_node.py` uses `cv_params.yaml`.
+
+```
+ros2 launch bimanual_sensor object_sensor.launch.py camera_placeholder:=true use_rviz:=true
+```
+
+![alt text](bm_object.png)
 
 ## `bimanual_controller` package
+Simulates motion control (task-space and joint-space) commands for the 4-finger (5-DoF) Allegro Hands and 7-DoF Kinova Arms, set up together as a symmetric bi-manual system with wrist mounted cameras.
+Also launches the `robot_state_publisher` and houses the bi-manual system's xacro file.
+
+Hosts the following action servers:
+- `move_arm_to_pose`: Uses IK along with joint-space interpolation to move the 7-DoF arms to any *SE(3)* pose in the workspace.
+- `grasp_until_contact`: Flexes each finger until they independently establish contact with the object, measured via the binary tactile sensors, or until the desired closure is reached.
+- `release_grasp`: Extends each finger to a desired extension.
+
+Node `limbs_mockup_node.py` uses `grasp_params.yaml`, and `motion_params.yaml`.
+
+```
+ros2 launch bimanual_controller limbs_mockup.launch.py use_rviz:=true
+```
+https://github.com/user-attachments/assets/bf7a84b6-1420-491f-9eb0-f3434e344371
 
 ## `bimanual_planner` package
 
